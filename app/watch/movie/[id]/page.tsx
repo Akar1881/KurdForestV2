@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import LanguageSelector from '@/components/LanguageSelector';
 import SubtitleProgress from '@/components/SubtitleProgress';
 import VideoPlayer from '@/components/VideoPlayer';
+import AdWarning from '@/components/AdWarning';
 import { fetchSubtitle, getSubtitleStatus } from '@/lib/subtitles';
 import type { SubtitleStatus } from '@/lib/types';
 
@@ -40,7 +41,18 @@ export default function WatchMoviePage() {
         language: selectedLanguage,
       });
 
-      if (result.processId) {
+      if (result.fromCache || result.status === 'from_cache') {
+        setSubtitleStatus({ 
+          processId: 'cached', 
+          status: 'from_cache',
+          subtitleUrl: result.subtitleUrl,
+          progress: 100,
+          fromCache: true
+        });
+        setSubtitleUrl(result.subtitleUrl);
+        setIsFetchingSubtitle(false);
+        setShowPlayer(true);
+      } else if (result.processId) {
         pollSubtitleStatus(result.processId);
       }
     } catch (error) {
@@ -83,6 +95,9 @@ export default function WatchMoviePage() {
       <div className="max-w-5xl mx-auto">
         {!showPlayer && (
           <>
+            {/* Ad Warning */}
+            <AdWarning />
+
             {/* Subtitle Instructions */}
             <div className="bg-gray-900 p-6 rounded-md mb-6">
               <p className="text-gray-300 text-sm leading-relaxed">

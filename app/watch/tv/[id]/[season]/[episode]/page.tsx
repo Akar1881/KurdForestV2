@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import LanguageSelector from '@/components/LanguageSelector';
 import SubtitleProgress from '@/components/SubtitleProgress';
 import VideoPlayer from '@/components/VideoPlayer';
+import AdWarning from '@/components/AdWarning';
 import SeasonSelector from '@/components/SeasonSelector';
 import EpisodeList from '@/components/EpisodeList';
 import UpcomingEpisodes from '@/components/UpcomingEpisodes';
@@ -98,7 +99,18 @@ export default function WatchTVPage() {
         episode,
       });
 
-      if (result.processId) {
+      if (result.fromCache || result.status === 'from_cache') {
+        setSubtitleStatus({ 
+          processId: 'cached', 
+          status: 'from_cache',
+          subtitleUrl: result.subtitleUrl,
+          progress: 100,
+          fromCache: true
+        });
+        setSubtitleUrl(result.subtitleUrl);
+        setIsFetchingSubtitle(false);
+        setShowPlayer(true);
+      } else if (result.processId) {
         pollSubtitleStatus(result.processId);
       }
     } catch (error) {
@@ -182,6 +194,9 @@ export default function WatchTVPage() {
 
         {!showPlayer && (
           <>
+            {/* Ad Warning */}
+            <AdWarning />
+
             {/* Subtitle Instructions */}
             <div className="bg-gray-900 p-6 rounded-md mb-6 border border-gray-800">
               <p className="text-gray-300 text-sm leading-relaxed">

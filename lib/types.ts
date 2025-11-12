@@ -101,9 +101,11 @@ export interface Language {
 
 export interface SubtitleStatus {
   processId: string;
-  status: 'starting' | 'fetching_imdb' | 'searching_subs' | 'downloading' | 'translating' | 'finalizing' | 'converting' | 'complete' | 'failed' | 'retrying';
+  status: 'starting' | 'fetching_imdb' | 'searching_subs' | 'downloading' | 'translating' | 'finalizing' | 'converting' | 'complete' | 'failed' | 'retrying' | 'processing' | 'from_cache';
   subtitleUrl?: string;
   error?: string;
+  fromCache?: boolean;
+  progress?: number;
 }
 
 export interface FilterOptions {

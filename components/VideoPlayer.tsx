@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface VideoPlayerProps {
   tmdbId: number;
@@ -12,6 +12,8 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl, language }: VideoPlayerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== 'https://vidlink.pro') return;
@@ -41,6 +43,34 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
     };
   }, []);
 
+  useEffect(() => {
+    const handleFullscreenChange = async () => {
+      if (document.fullscreenElement) {
+        try {
+          if (screen.orientation && 'lock' in screen.orientation) {
+            await (screen.orientation as any).lock('landscape').catch(() => {});
+          }
+        } catch (error) {
+          console.log('Orientation lock not supported');
+        }
+      } else {
+        try {
+          if (screen.orientation && 'unlock' in screen.orientation) {
+            (screen.orientation as any).unlock();
+          }
+        } catch (error) {
+          console.log('Orientation unlock not supported');
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   const getPlayerUrl = () => {
     const baseUrl = type === 'movie'
       ? `https://vidlink.pro/movie/${tmdbId}`
@@ -60,12 +90,12 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
   };
 
   return (
-    <div className="w-full aspect-video bg-black rounded-md overflow-hidden" data-testid="player-video">
+    <div ref={containerRef} className="w-full aspect-video bg-black rounded-md overflow-hidden" data-testid="player-video">
       <iframe
         src={getPlayerUrl()}
         className="w-full h-full"
         allowFullScreen
-        allow="autoplay; fullscreen; picture-in-picture; screen-orientation-lock"
+        allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; screen-wake-lock"
         title="Video Player"
       />
     </div>

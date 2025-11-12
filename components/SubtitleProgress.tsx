@@ -17,6 +17,8 @@ const STATUS_LABELS: Record<SubtitleStatus['status'], string> = {
   complete: 'Complete!',
   failed: 'Failed',
   retrying: 'Retrying...',
+  processing: 'Processing subtitle...',
+  from_cache: 'Loaded from cache!',
 };
 
 const STATUS_PROGRESS: Record<SubtitleStatus['status'], number> = {
@@ -30,13 +32,15 @@ const STATUS_PROGRESS: Record<SubtitleStatus['status'], number> = {
   complete: 100,
   failed: 0,
   retrying: 40,
+  processing: 5,
+  from_cache: 100,
 };
 
 export default function SubtitleProgress({ status }: SubtitleProgressProps) {
-  const progress = STATUS_PROGRESS[status.status];
+  const progress = status.progress ?? STATUS_PROGRESS[status.status];
   const label = STATUS_LABELS[status.status];
   const isFailed = status.status === 'failed';
-  const isComplete = status.status === 'complete';
+  const isComplete = status.status === 'complete' || status.status === 'from_cache';
 
   return (
     <div className="w-full space-y-3" data-testid="container-subtitle-progress">
