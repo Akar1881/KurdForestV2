@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 interface VideoPlayerProps {
   tmdbId: number;
   type: 'movie' | 'tv';
@@ -10,6 +12,35 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl, language }: VideoPlayerProps) {
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://vidlink.pro') return;
+      
+      if (event.data?.type === 'MEDIA_DATA' && event.data?.data) {
+        try {
+          const mediaData = event.data.data;
+          
+          if (typeof mediaData === 'object' && mediaData !== null) {
+            const existingData = localStorage.getItem('vidLinkProgress');
+            const allProgress = existingData ? JSON.parse(existingData) : {};
+            
+            Object.assign(allProgress, mediaData);
+            
+            localStorage.setItem('vidLinkProgress', JSON.stringify(allProgress));
+          }
+        } catch (error) {
+          console.error('Error saving watch progress:', error);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
   const getPlayerUrl = () => {
     const baseUrl = type === 'movie'
       ? `https://vidlink.pro/movie/${tmdbId}`

@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import ContinueWatching from '@/components/ContinueWatching';
 import HorizontalScroller from '@/components/HorizontalScroller';
 import { tmdbFetch } from '@/lib/tmdb';
 import type { TMDBResponse, TMDBMovie } from '@/lib/types';
@@ -45,6 +46,7 @@ export default async function HomePage() {
       <Hero items={heroItems} type="movie" />
       
       <div className="py-8 space-y-8">
+        <ContinueWatching />
         <HorizontalScroller title="Trending Movies" items={trendingMovies} type="movie" />
         <HorizontalScroller title="Trending TV Shows" items={trendingTV} type="tv" />
         <HorizontalScroller title="Popular Movies" items={popularMovies} type="movie" />
