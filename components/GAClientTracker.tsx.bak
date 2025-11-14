@@ -6,13 +6,6 @@ import { usePathname } from 'next/navigation';
 // Google Analytics tracking ID
 const GA_TRACKING_ID = 'G-4R31TD63KS';
 
-// Tell TypeScript that window.gtag exists
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-  }
-}
-
 export default function GAClientTracker() {
   const pathname = usePathname();
 
