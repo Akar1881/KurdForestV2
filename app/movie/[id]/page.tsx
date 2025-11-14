@@ -58,6 +58,7 @@ export default function MovieDetailsPage() {
   const similar = movie.similar?.results || [];
 
   return (
+  <>
   <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black">
       {/* Hero Section with Backdrop */}
@@ -207,5 +208,6 @@ export default function MovieDetailsPage() {
         <TrailerModal videoKey={trailer.key} onClose={() => setShowTrailer(false)} />
       )}
     </div>
+    </>
   );
 }

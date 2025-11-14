@@ -9,7 +9,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import AdWarning from '@/components/AdWarning';
 import { fetchSubtitle, getSubtitleStatus } from '@/lib/subtitles';
 import type { SubtitleStatus } from '@/lib/types';
-
+import GAClientTracker from '@/components/GAClientTracker';
 
 export default function WatchMoviePage() {
   const params = useParams();
@@ -93,6 +93,7 @@ export default function WatchMoviePage() {
   };
 
   return (
+  <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black pt-6 sm:pt-8">
       <div className="container-custom max-w-5xl pb-12">
         {!showPlayer && (

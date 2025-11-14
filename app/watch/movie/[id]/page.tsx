@@ -93,6 +93,7 @@ export default function WatchMoviePage() {
   };
 
   return (
+  <>
   <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black pt-6 sm:pt-8">
       <div className="container-custom max-w-5xl pb-12">
@@ -203,5 +204,6 @@ export default function WatchMoviePage() {
         )}
       </div>
     </div>
+    </>
   );
 }

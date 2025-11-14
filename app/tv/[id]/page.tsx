@@ -60,6 +60,7 @@ export default function TVDetailsPage() {
   const totalEpisodes = seasons.reduce((acc, s) => acc + s.episode_count, 0);
 
   return (
+  <>
   <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black">
       {/* Hero Section with Backdrop */}
@@ -211,5 +212,6 @@ export default function TVDetailsPage() {
         <TrailerModal videoKey={trailer.key} onClose={() => setShowTrailer(false)} />
       )}
     </div>
+    </>
   );
 }
