@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface VideoPlayerProps {
   tmdbId: number;
@@ -13,6 +13,8 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl, language }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -44,15 +46,21 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
   }, []);
 
   useEffect(() => {
-    const handleFullscreenChange = async () => {
-      if (document.fullscreenElement) {
-        try {
-          if (screen.orientation && 'lock' in screen.orientation) {
-            await (screen.orientation as any).lock('landscape').catch(() => {});
+    const handleFullscreenChange = () => {
+      const fullscreenElement = document.fullscreenElement;
+      setIsFullscreen(!!fullscreenElement);
+      
+      if (fullscreenElement) {
+        // Don't lock orientation immediately, wait a bit
+        setTimeout(async () => {
+          try {
+            if (screen.orientation && 'lock' in screen.orientation) {
+              await (screen.orientation as any).lock('landscape').catch(() => {});
+            }
+          } catch (error) {
+            console.log('Orientation lock not supported');
           }
-        } catch (error) {
-          console.log('Orientation lock not supported');
-        }
+        }, 300);
       } else {
         try {
           if (screen.orientation && 'unlock' in screen.orientation) {
@@ -64,12 +72,51 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Allow ESC key to exit fullscreen
+      if (event.key === 'Escape' && isFullscreen) {
+        exitFullscreen();
+      }
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isFullscreen]);
+
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {
+        // Fallback: try to exit fullscreen using various methods
+        if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if ((document as any).msExitFullscreen) {
+          (document as any).msExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          (document as any).mozCancelFullScreen();
+        }
+      });
+    }
+  };
+
+  // Add a manual exit button for mobile devices
+  const ManualExitButton = () => {
+    if (!isFullscreen) return null;
+
+    return (
+      <button
+        onClick={exitFullscreen}
+        className="fixed top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-lg"
+        style={{ zIndex: 9999 }}
+      >
+        Exit Fullscreen
+      </button>
+    );
+  };
 
   const getPlayerUrl = () => {
     const baseUrl = type === 'movie'
@@ -90,14 +137,18 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
   };
 
   return (
-    <div ref={containerRef} className="w-full aspect-video bg-black rounded-md overflow-hidden" data-testid="player-video">
-      <iframe
-        src={getPlayerUrl()}
-        className="w-full h-full"
-        allowFullScreen
-        allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; screen-wake-lock"
-        title="Video Player"
-      />
-    </div>
+    <>
+      <ManualExitButton />
+      <div ref={containerRef} className="w-full aspect-video bg-black rounded-md overflow-hidden" data-testid="player-video">
+        <iframe
+          ref={iframeRef}
+          src={getPlayerUrl()}
+          className="w-full h-full"
+          allowFullScreen
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; screen-wake-lock"
+          title="Video Player"
+        />
+      </div>
+    </>
   );
 }
