@@ -11,6 +11,13 @@ interface VideoPlayerProps {
   language?: string;
 }
 
+// Extended Document interface for browser-specific fullscreen APIs
+interface ExtendedDocument extends Document {
+  webkitExitFullscreen?: () => Promise<void>;
+  mozCancelFullScreen?: () => Promise<void>;
+  msExitFullscreen?: () => Promise<void>;
+}
+
 export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl, language }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -89,17 +96,18 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
   }, [isFullscreen]);
 
   const exitFullscreen = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {
-        // Fallback: try to exit fullscreen using various methods
-        if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if ((document as any).msExitFullscreen) {
-          (document as any).msExitFullscreen();
-        } else if ((document as any).mozCancelFullScreen) {
-          (document as any).mozCancelFullScreen();
-        }
-      });
+    const doc = document as ExtendedDocument;
+    
+    if (doc.fullscreenElement) {
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen().catch(() => {});
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen().catch(() => {});
+      } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen().catch(() => {});
+      } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen().catch(() => {});
+      }
     }
   };
 
