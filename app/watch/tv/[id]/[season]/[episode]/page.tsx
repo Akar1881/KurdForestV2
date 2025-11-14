@@ -20,7 +20,6 @@ import { tmdbFetch } from '@/lib/tmdb';
 import type { TMDBResponse, TMDBMovie } from '@/lib/types';
 import GAClientTracker from '@/components/GAClientTracker';
 
-
 async function getTrendingMovies() {
   const data: TMDBResponse<TMDBMovie> = await tmdbFetch('/trending/movie/day');
   return data.results.slice(0, 10);
