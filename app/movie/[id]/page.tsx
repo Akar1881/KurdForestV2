@@ -9,6 +9,7 @@ import TrailerModal from '@/components/TrailerModal';
 import HorizontalScroller from '@/components/HorizontalScroller';
 import { getImageUrl, formatRuntime } from '@/lib/tmdb';
 import type { MovieDetails, Cast } from '@/lib/types';
+import GAClientTracker from '@/components/GAClientTracker';
 
 export default function MovieDetailsPage() {
   const params = useParams();
@@ -57,6 +58,7 @@ export default function MovieDetailsPage() {
   const similar = movie.similar?.results || [];
 
   return (
+  <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black">
       {/* Hero Section with Backdrop */}
       <div className="relative w-full h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] max-h-[700px]">

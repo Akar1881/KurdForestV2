@@ -37,6 +37,7 @@ export default function TVDetailsPage() {
 
   if (loading) {
     return (
+    <GAClientTracker />  {/* <-- GA tracking active here */}
       <div className="flex justify-center items-center min-h-screen bg-black">
         <div className="animate-pulse text-gray-500 text-sm">Loading...</div>
       </div>
@@ -60,7 +61,6 @@ export default function TVDetailsPage() {
   const totalEpisodes = seasons.reduce((acc, s) => acc + s.episode_count, 0);
 
   return (
-  <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black">
       {/* Hero Section with Backdrop */}
       <div className="relative w-full h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] max-h-[700px]">

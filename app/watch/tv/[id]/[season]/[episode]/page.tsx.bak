@@ -18,7 +18,7 @@ import ContinueWatching from '@/components/ContinueWatching';
 import HorizontalScroller from '@/components/HorizontalScroller';
 import { tmdbFetch } from '@/lib/tmdb';
 import type { TMDBResponse, TMDBMovie } from '@/lib/types';
-import GAClientTracker from '@/components/GAClientTracker';
+
 
 
 async function getTrendingMovies() {
@@ -200,7 +200,6 @@ export default function WatchTVPage() {
   const currentEpisode = seasonDetails?.episodes.find(ep => ep.episode_number === episode);
 
   return (
-  <GAClientTracker />  {/* <-- GA tracking active here */}
     <div className="min-h-screen bg-black pt-6 sm:pt-8 pb-24">
       <div className="container-custom max-w-6xl pb-12">
         {/* Page Header */}
