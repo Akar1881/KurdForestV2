@@ -1,20 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Play } from 'lucide-react';
+import { Star, Play, Clock, Calendar } from 'lucide-react';
 import TrailerModal from '@/components/TrailerModal';
 import HorizontalScroller from '@/components/HorizontalScroller';
-import { getImageUrl } from '@/lib/tmdb';
+import { getImageUrl, formatRuntime } from '@/lib/tmdb';
 import type { MovieDetails, Cast } from '@/lib/types';
 
 export default function MovieDetailsPage() {
   const params = useParams();
-  const router = useRouter();
   const id = params.id as string;
-  
+
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTrailer, setShowTrailer] = useState(false);
@@ -38,7 +37,7 @@ export default function MovieDetailsPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 text-sm">Loading...</div>
       </div>
     );
   }
@@ -46,7 +45,7 @@ export default function MovieDetailsPage() {
   if (!movie) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500">Movie not found</div>
+        <div className="text-gray-500 text-sm">Movie not found</div>
       </div>
     );
   }
@@ -59,8 +58,8 @@ export default function MovieDetailsPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Banner Background */}
-      <div className="relative w-full h-[50vh] sm:h-[60vh]">
+      {/* Hero Section with Backdrop */}
+      <div className="relative w-full h-[50vh] sm:h-[55vh] md:h-[60vh] lg:h-[65vh] max-h-[700px]">
         <Image
           src={backdropUrl}
           alt={movie.title}
@@ -68,51 +67,67 @@ export default function MovieDetailsPage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40" />
       </div>
 
-      {/* Content */}
-      <div className="px-4 -mt-32 relative z-10 pb-8">
-        <div className="max-w-[1400px] mx-auto">
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
+      {/* Content Container */}
+      <div className="container-custom -mt-24 sm:-mt-32 md:-mt-40 relative z-10 pb-12">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 mb-8 sm:mb-12">
           {/* Poster */}
           <div className="flex-shrink-0">
-            <div className="relative w-[150px] h-[225px] sm:w-[180px] sm:h-[270px] md:w-[200px] md:h-[300px] rounded-md overflow-hidden bg-gray-900">
+            <div className="relative w-40 h-60 sm:w-48 sm:h-72 md:w-56 md:h-84 lg:w-64 lg:h-96 rounded-xl overflow-hidden bg-card-bg shadow-card-hover border border-card-border">
               <Image
                 src={posterUrl}
                 alt={movie.title}
                 fill
                 className="object-cover"
+                sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
               />
             </div>
           </div>
 
-          {/* Info */}
-          <div className="flex-1">
-            <h1 className="text-white text-3xl md:text-4xl font-bold mb-3" data-testid="text-movie-title">
+          {/* Info Section */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight" data-testid="text-movie-title">
               {movie.title}
             </h1>
 
-            <div className="flex items-center gap-4 mb-4">
+            {/* Metadata Row */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
               {movie.vote_average > 0 && (
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-yellow-400 text-lg font-semibold">
+                <div className="flex items-center gap-1.5 bg-black/40 glass px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
+                  <span className="text-yellow-400 font-bold text-sm sm:text-base">
                     {movie.vote_average.toFixed(1)}
                   </span>
                 </div>
               )}
               {movie.release_date && (
-                <span className="text-gray-400">{new Date(movie.release_date).getFullYear()}</span>
+                <div className="flex items-center gap-1.5 bg-black/40 glass px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-300 text-sm sm:text-base">
+                    {new Date(movie.release_date).getFullYear()}
+                  </span>
+                </div>
+              )}
+              {movie.runtime && (
+                <div className="flex items-center gap-1.5 bg-black/40 glass px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  <Clock className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-300 text-sm sm:text-base">
+                    {formatRuntime(movie.runtime)}
+                  </span>
+                </div>
               )}
             </div>
 
+            {/* Genres */}
             {movie.genres && movie.genres.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 mb-5 sm:mb-6">
                 {movie.genres.map((genre) => (
                   <span
                     key={genre.id}
-                    className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-sm"
+                    className="bg-white/10 text-gray-200 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm border border-white/10"
                   >
                     {genre.name}
                   </span>
@@ -120,49 +135,52 @@ export default function MovieDetailsPage() {
               </div>
             )}
 
-            <p className="text-gray-300 mb-6 leading-relaxed" data-testid="text-overview">
+            {/* Overview */}
+            <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 max-w-3xl" data-testid="text-overview">
               {movie.overview}
             </p>
 
-            <div className="flex gap-3">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 sm:gap-4">
+              <Link
+                href={`/watch/movie/${id}`}
+                className="flex items-center justify-center gap-2 bg-white text-black px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl button-press font-semibold text-sm sm:text-base"
+                data-testid="button-watch"
+              >
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                <span>Watch Now</span>
+              </Link>
               {trailer && (
                 <button
                   onClick={() => setShowTrailer(true)}
-                  className="flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition-colors"
+                  className="flex items-center justify-center gap-2 glass-light text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md button-press font-medium text-sm sm:text-base"
                   data-testid="button-trailer"
                 >
-                  <Play className="w-5 h-5" />
-                  <span className="font-medium">Trailer</span>
+                  <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span>Watch Trailer</span>
                 </button>
               )}
-              <Link
-                href={`/watch/movie/${id}`}
-                className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-md hover:bg-gray-200 transition-colors"
-                data-testid="button-watch"
-              >
-                <Play className="w-5 h-5" />
-                <span className="font-medium">Watch</span>
-              </Link>
             </div>
           </div>
         </div>
 
-        {/* Cast */}
+        {/* Cast Section */}
         {cast.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-white text-2xl font-bold mb-4">Cast</h2>
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 smooth-scroll max-w-full">
+          <section className="mb-10 sm:mb-12">
+            <h2 className="text-white text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Cast</h2>
+            <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-2 smooth-scroll">
               {cast.map((person: Cast) => (
                 <div key={person.id} className="flex-shrink-0 w-24 sm:w-28 md:w-32">
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-gray-900 mb-2">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-card-bg shadow-card mb-2 border border-card-border">
                     <Image
                       src={getImageUrl(person.profile_path, 'w200')}
                       alt={person.name}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 640px) 96px, (max-width: 768px) 112px, 128px"
                     />
                   </div>
-                  <p className="text-white text-sm font-medium text-center line-clamp-1">
+                  <p className="text-white text-xs sm:text-sm font-medium text-center line-clamp-2 mb-0.5">
                     {person.name}
                   </p>
                   <p className="text-gray-400 text-xs text-center line-clamp-1">
@@ -176,9 +194,10 @@ export default function MovieDetailsPage() {
 
         {/* Similar Movies */}
         {similar.length > 0 && (
-          <HorizontalScroller title="Similar Movies" items={similar} type="movie" />
+          <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+            <HorizontalScroller title="Similar Movies" items={similar} type="movie" />
+          </div>
         )}
-        </div>
       </div>
 
       {/* Trailer Modal */}

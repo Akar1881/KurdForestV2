@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { Languages, PlayCircle, Tv, List } from 'lucide-react';
 import LanguageSelector from '@/components/LanguageSelector';
 import SubtitleProgress from '@/components/SubtitleProgress';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -15,17 +15,16 @@ import type { SubtitleStatus, TVDetails, SeasonDetails } from '@/lib/types';
 
 export default function WatchTVPage() {
   const params = useParams();
-  const router = useRouter();
   const id = Number(params.id);
   const season = Number(params.season);
   const episode = Number(params.episode);
-  
+
   const [show, setShow] = useState<TVDetails | null>(null);
   const [selectedSeason, setSelectedSeason] = useState(season);
   const [seasonDetails, setSeasonDetails] = useState<SeasonDetails | null>(null);
   const [loadingShow, setLoadingShow] = useState(true);
   const [loadingSeason, setLoadingSeason] = useState(false);
-  
+
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [selectedLanguageName, setSelectedLanguageName] = useState('');
   const [showPlayer, setShowPlayer] = useState(false);
@@ -100,8 +99,8 @@ export default function WatchTVPage() {
       });
 
       if (result.fromCache || result.status === 'from_cache') {
-        setSubtitleStatus({ 
-          processId: 'cached', 
+        setSubtitleStatus({
+          processId: 'cached',
           status: 'from_cache',
           subtitleUrl: result.subtitleUrl,
           progress: 100,
@@ -151,7 +150,7 @@ export default function WatchTVPage() {
   if (loadingShow) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500">Loading...</div>
+        <div className="animate-pulse text-gray-500 text-sm">Loading...</div>
       </div>
     );
   }
@@ -159,7 +158,7 @@ export default function WatchTVPage() {
   if (!show) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500">TV show not found</div>
+        <div className="text-gray-500 text-sm">TV show not found</div>
       </div>
     );
   }
@@ -168,25 +167,17 @@ export default function WatchTVPage() {
   const currentEpisode = seasonDetails?.episodes.find(ep => ep.episode_number === episode);
 
   return (
-    <div className="min-h-screen bg-black pt-4 px-4 pb-24">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-            data-testid="button-back"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back</span>
-          </button>
-        </div>
-
-        <div className="mb-6">
-          <h1 className="text-white text-2xl md:text-3xl font-bold mb-2" data-testid="text-show-title">
-            {show.name}
-          </h1>
-          <p className="text-gray-400 text-sm" data-testid="text-episode-info">
+    <div className="min-h-screen bg-black pt-6 sm:pt-8 pb-24">
+      <div className="container-custom max-w-6xl pb-12">
+        {/* Page Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <Tv className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400" />
+            <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold" data-testid="text-show-title">
+              {show.name}
+            </h1>
+          </div>
+          <p className="text-gray-400 text-sm sm:text-base" data-testid="text-episode-info">
             Season {season} • Episode {episode}
             {currentEpisode && ` • ${currentEpisode.name}`}
           </p>
@@ -197,150 +188,181 @@ export default function WatchTVPage() {
             {/* Ad Warning */}
             <AdWarning />
 
-            {/* Subtitle Instructions */}
-            <div className="bg-gray-900 p-6 rounded-md mb-6 border border-gray-800">
-              <p className="text-gray-300 text-sm leading-relaxed">
-                You can request subtitle up to 119 languages but remember we do not provide subtitle our providers do 
-                so it takes a little time to fetch. Select your language below and click watch with subtitle or if you 
-                don't want subtitles click watch without subtitle
-              </p>
-            </div>
-
-            {/* Language Selector */}
-            <div className="mb-6">
-              <label className="block text-white text-sm font-medium mb-2">
-                Select Subtitle Language
-              </label>
-              <LanguageSelector
-                onSelect={handleLanguageSelect}
-                selectedLanguage={selectedLanguage}
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <button
-                onClick={handleWatchWithSubtitle}
-                disabled={!selectedLanguage || isFetchingSubtitle}
-                className="flex-1 bg-white text-black px-6 py-3 rounded-md font-medium hover:bg-gray-200 transition-colors disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
-                data-testid="button-watch-with-subtitle"
-              >
-                Watch with Subtitle
-              </button>
-              <button
-                onClick={handleWatchWithoutSubtitle}
-                disabled={isFetchingSubtitle}
-                className="flex-1 bg-gray-800 text-white px-6 py-3 rounded-md font-medium hover:bg-gray-700 transition-colors disabled:bg-gray-900 disabled:text-gray-600 disabled:cursor-not-allowed"
-                data-testid="button-watch-without-subtitle"
-              >
-                Watch without Subtitle
-              </button>
-            </div>
-
-            {/* Subtitle Progress */}
-            {subtitleStatus && isFetchingSubtitle && (
-              <div className="mb-8">
-                <SubtitleProgress status={subtitleStatus} />
+            {/* Subtitle Configuration Card */}
+            <div className="bg-card-bg rounded-xl border border-card-border shadow-card p-5 sm:p-6 md:p-8 mb-6 sm:mb-8">
+              <div className="flex items-center gap-3 mb-4 sm:mb-5">
+                <Languages className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+                <h2 className="text-white text-lg sm:text-xl font-bold">Subtitle Settings</h2>
               </div>
-            )}
 
-            {/* Divider */}
-            <div className="border-t border-gray-800 my-8"></div>
+              <div className="bg-black/40 rounded-lg p-4 sm:p-5 mb-5 sm:mb-6 border border-gray-800">
+                <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                  You can request subtitles in up to 119 languages. Please note that subtitle fetching
+                  is provided by our partners and may take a moment to process. Select your preferred
+                  language below or choose to watch without subtitles.
+                </p>
+              </div>
 
-            {/* Season Selector */}
-            {seasons.length > 0 && (
-              <SeasonSelector
-                seasons={seasons}
-                selectedSeason={selectedSeason}
-                onSeasonChange={handleSeasonChange}
-              />
-            )}
+              <div className="mb-6">
+                <label className="block text-white text-sm sm:text-base font-semibold mb-3">
+                  Select Subtitle Language
+                </label>
+                <LanguageSelector
+                  onSelect={handleLanguageSelect}
+                  selectedLanguage={selectedLanguage}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                <button
+                  onClick={handleWatchWithSubtitle}
+                  disabled={!selectedLanguage || isFetchingSubtitle}
+                  className="flex items-center justify-center gap-2 bg-white text-black px-6 py-3 sm:py-3.5 rounded-xl font-semibold text-sm sm:text-base hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl button-press disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
+                  data-testid="button-watch-with-subtitle"
+                >
+                  <PlayCircle className="w-5 h-5" />
+                  <span>Watch with Subtitle</span>
+                </button>
+                <button
+                  onClick={handleWatchWithoutSubtitle}
+                  disabled={isFetchingSubtitle}
+                  className="flex items-center justify-center gap-2 glass-light text-white px-6 py-3 sm:py-3.5 rounded-xl font-medium text-sm sm:text-base hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md button-press disabled:bg-gray-900 disabled:text-gray-600 disabled:cursor-not-allowed disabled:border-gray-800"
+                  data-testid="button-watch-without-subtitle"
+                >
+                  <PlayCircle className="w-5 h-5" />
+                  <span>Watch without Subtitle</span>
+                </button>
+              </div>
+
+              {/* Subtitle Progress */}
+              {subtitleStatus && isFetchingSubtitle && (
+                <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-800">
+                  <h3 className="text-white text-base sm:text-lg font-semibold mb-4">
+                    Processing Subtitle
+                  </h3>
+                  <SubtitleProgress status={subtitleStatus} />
+                </div>
+              )}
+            </div>
 
             {/* Episodes Section */}
-            {loadingSeason ? (
-              <div className="flex justify-center py-8">
-                <div className="text-gray-500">Loading episodes...</div>
+            <div className="bg-card-bg rounded-xl border border-card-border shadow-card p-5 sm:p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-5 sm:mb-6">
+                <List className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+                <h2 className="text-white text-lg sm:text-xl font-bold">Episodes</h2>
               </div>
-            ) : seasonDetails && seasonDetails.episodes ? (
-              <>
-                {/* Released Episodes */}
-                <section className="mb-8">
-                  <h2 className="text-white text-2xl font-bold mb-4">Available Episodes</h2>
-                  <EpisodeList
-                    episodes={seasonDetails.episodes}
-                    tvId={id}
-                    seasonNumber={selectedSeason}
-                    filterUnreleased={true}
-                  />
-                </section>
 
-                {/* Upcoming Episodes */}
-                <UpcomingEpisodes
-                  episodes={seasonDetails.episodes}
-                  tvId={id}
-                  seasonNumber={selectedSeason}
-                />
-              </>
-            ) : null}
-          </>
-        )}
-
-        {/* Video Player */}
-        {showPlayer && (
-          <div className="mt-6">
-            <VideoPlayer
-              tmdbId={id}
-              type="tv"
-              season={season}
-              episode={episode}
-              subtitleUrl={subtitleUrl}
-              language={selectedLanguageName}
-            />
-
-            {/* Back to episode selection */}
-            <div className="mt-6 text-center">
-              <button
-                onClick={() => setShowPlayer(false)}
-                className="bg-gray-800 text-white px-6 py-3 rounded-md font-medium hover:bg-gray-700 transition-colors"
-                data-testid="button-change-episode"
-              >
-                Change Episode or Settings
-              </button>
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-800 my-8"></div>
-
-            {/* Show episodes below player too */}
-            {seasonDetails && seasonDetails.episodes && (
-              <>
-                {/* Season Selector */}
-                {seasons.length > 0 && (
+              {/* Season Selector */}
+              {seasons.length > 0 && (
+                <div className="mb-6">
                   <SeasonSelector
                     seasons={seasons}
                     selectedSeason={selectedSeason}
                     onSeasonChange={handleSeasonChange}
                   />
-                )}
+                </div>
+              )}
 
-                {/* Released Episodes */}
-                <section className="mb-8">
-                  <h2 className="text-white text-2xl font-bold mb-4">Available Episodes</h2>
-                  <EpisodeList
+              {/* Episodes List */}
+              {loadingSeason ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-pulse text-gray-500 text-sm">Loading episodes...</div>
+                </div>
+              ) : seasonDetails && seasonDetails.episodes ? (
+                <div className="space-y-6 sm:space-y-8">
+                  {/* Available Episodes */}
+                  <div>
+                    <h3 className="text-white text-base sm:text-lg font-semibold mb-4">Available Episodes</h3>
+                    <EpisodeList
+                      episodes={seasonDetails.episodes}
+                      tvId={id}
+                      seasonNumber={selectedSeason}
+                      filterUnreleased={true}
+                    />
+                  </div>
+
+                  {/* Upcoming Episodes */}
+                  <UpcomingEpisodes
                     episodes={seasonDetails.episodes}
                     tvId={id}
                     seasonNumber={selectedSeason}
-                    filterUnreleased={true}
                   />
-                </section>
+                </div>
+              ) : null}
+            </div>
+          </>
+        )}
 
-                {/* Upcoming Episodes */}
-                <UpcomingEpisodes
-                  episodes={seasonDetails.episodes}
-                  tvId={id}
-                  seasonNumber={selectedSeason}
-                />
-              </>
+        {/* Video Player */}
+        {showPlayer && (
+          <div className="space-y-6">
+            <div className="bg-card-bg rounded-xl border border-card-border shadow-card overflow-hidden">
+              <VideoPlayer
+                tmdbId={id}
+                type="tv"
+                season={season}
+                episode={episode}
+                subtitleUrl={subtitleUrl}
+                language={selectedLanguageName}
+              />
+            </div>
+
+            {/* Player Controls */}
+            <div className="flex justify-center">
+              <button
+                onClick={() => {
+                  setShowPlayer(false);
+                  setSubtitleUrl(undefined);
+                  setSubtitleStatus(null);
+                  setIsFetchingSubtitle(false);
+                }}
+                className="flex items-center gap-2 glass-light text-white px-6 py-3 rounded-xl hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md button-press font-medium text-sm"
+                data-testid="button-change-episode"
+              >
+                <Languages className="w-4 h-4" />
+                <span>Change Episode or Settings</span>
+              </button>
+            </div>
+
+            {/* Episodes Section (repeated below player) */}
+            {seasonDetails && seasonDetails.episodes && (
+              <div className="bg-card-bg rounded-xl border border-card-border shadow-card p-5 sm:p-6 md:p-8">
+                <div className="flex items-center gap-3 mb-5 sm:mb-6">
+                  <List className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+                  <h2 className="text-white text-lg sm:text-xl font-bold">More Episodes</h2>
+                </div>
+
+                {/* Season Selector */}
+                {seasons.length > 0 && (
+                  <div className="mb-6">
+                    <SeasonSelector
+                      seasons={seasons}
+                      selectedSeason={selectedSeason}
+                      onSeasonChange={handleSeasonChange}
+                    />
+                  </div>
+                )}
+
+                {/* Episodes List */}
+                <div className="space-y-6 sm:space-y-8">
+                  <div>
+                    <h3 className="text-white text-base sm:text-lg font-semibold mb-4">Available Episodes</h3>
+                    <EpisodeList
+                      episodes={seasonDetails.episodes}
+                      tvId={id}
+                      seasonNumber={selectedSeason}
+                      filterUnreleased={true}
+                    />
+                  </div>
+
+                  <UpcomingEpisodes
+                    episodes={seasonDetails.episodes}
+                    tvId={id}
+                    seasonNumber={selectedSeason}
+                  />
+                </div>
+              </div>
             )}
           </div>
         )}

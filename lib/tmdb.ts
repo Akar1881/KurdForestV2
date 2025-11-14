@@ -60,6 +60,12 @@ export function buildDiscoverParams(filters: FilterOptions, type: 'movie' | 'tv'
   return params.toString();
 }
 
+export function formatRuntime(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return `${hours}h ${mins}m`;
+}
+
 export const GENRE_MAP: Record<number, string> = {
   28: 'Action',
   12: 'Adventure',
