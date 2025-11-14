@@ -88,9 +88,9 @@ export default function TVPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-4">
-      <div className="max-w-[1400px] mx-auto px-4">
-        <h1 className="text-white text-2xl font-bold mb-6" data-testid="text-page-title">
+    <div className="min-h-screen bg-black pt-6 sm:pt-8">
+      <div className="container-custom">
+        <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8" data-testid="text-page-title">
           {getPageTitle()}
         </h1>
         

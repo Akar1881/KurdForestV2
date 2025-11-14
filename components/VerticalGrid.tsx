@@ -10,14 +10,17 @@ export default function VerticalGrid({ items, type }: VerticalGridProps) {
   if (!items || items.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-gray-500 text-center">No results found</p>
+        <div className="text-center">
+          <p className="text-gray-400 text-lg mb-2">No results found</p>
+          <p className="text-gray-500 text-sm">Try adjusting your search or filters</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-4">
+    <div className="container-custom">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5 pb-4">
         {items.map((item) => (
           <MediaCard key={item.id} item={item} type={type} />
         ))}

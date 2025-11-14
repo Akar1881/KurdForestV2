@@ -45,7 +45,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-black">
       <Hero items={heroItems} type="movie" />
       
-      <div className="py-8 space-y-8">
+      <div className="py-8 sm:py-10 md:py-12">
         <ContinueWatching />
         <HorizontalScroller title="Trending Movies" items={trendingMovies} type="movie" />
         <HorizontalScroller title="Trending TV Shows" items={trendingTV} type="tv" />

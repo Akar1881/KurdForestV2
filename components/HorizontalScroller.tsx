@@ -14,13 +14,15 @@ export default function HorizontalScroller({ title, items, type }: HorizontalScr
   if (!items || items.length === 0) return null;
 
   return (
-    <section className="mb-8">
-      <h2 className="text-white text-xl font-bold mb-4 px-4" data-testid={`text-section-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-        {title}
-      </h2>
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-2 smooth-scroll">
+    <section className="mb-10 sm:mb-12">
+      <div className="container-custom">
+        <h2 className="text-white text-xl sm:text-2xl font-bold mb-4 sm:mb-6" data-testid={`text-section-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+          {title}
+        </h2>
+      </div>
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pl-4 sm:pl-6 lg:pl-8 pr-4 sm:pr-6 lg:pr-8 pb-2 smooth-scroll">
         {items.map((item) => {
-          const title = item.title || item.name || 'Untitled';
+          const itemTitle = item.title || item.name || 'Untitled';
           const href = type === 'movie' ? `/movie/${item.id}` : `/tv/${item.id}`;
           const imageUrl = getImageUrl(item.poster_path, 'w300');
 
@@ -28,28 +30,29 @@ export default function HorizontalScroller({ title, items, type }: HorizontalScr
             <Link
               key={item.id}
               href={href}
-              className="group block flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px]"
+              className="group block flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] lg:w-[200px] scroll-snap-start"
               data-testid={`card-${type}-${item.id}`}
             >
-              <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-gray-900 mb-2 h-[210px] sm:h-[240px] md:h-[270px]">
+              <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-card-bg shadow-card group-hover:shadow-card-hover transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
                 <Image
                   src={imageUrl}
-                  alt={title}
+                  alt={itemTitle}
                   fill
-                  sizes="(max-width: 640px) 140px, (max-width: 768px) 160px, 180px"
-                  className="object-cover transition-transform group-hover:scale-105"
+                  sizes="(max-width: 640px) 140px, (max-width: 768px) 160px, (max-width: 1024px) 180px, 200px"
+                  className="object-cover transition-all duration-300 group-hover:scale-110"
                 />
                 {item.vote_average > 0 && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/80 px-2 py-1 rounded-md">
-                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                    <span className="text-xs text-yellow-400 font-semibold">
+                  <div className="absolute top-2 right-2 flex items-center gap-1 glass px-2.5 py-1.5 rounded-full backdrop-blur-md z-20">
+                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                    <span className="text-xs text-yellow-400 font-bold">
                       {item.vote_average.toFixed(1)}
                     </span>
                   </div>
                 )}
               </div>
-              <h3 className="text-sm text-white font-medium line-clamp-2 group-hover:text-gray-300 transition-colors" data-testid={`text-title-${item.id}`}>
-                {title}
+              <h3 className="text-sm text-white font-semibold line-clamp-2 group-hover:text-yellow-400 transition-colors duration-200 mt-2 px-1" data-testid={`text-title-${item.id}`}>
+                {itemTitle}
               </h3>
             </Link>
           );

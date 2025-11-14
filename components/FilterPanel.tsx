@@ -122,26 +122,26 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
   const hasActiveFilters = yearFrom || yearTo || selectedGenres.length > 0 || ratingFrom || ratingTo || sortBy !== 'popularity.desc';
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 sm:mb-8">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md hover-elevate active-elevate-2 w-full md:w-auto"
+        className="flex items-center gap-3 px-5 py-3 bg-card-bg text-white rounded-xl shadow-card hover:shadow-card-hover transition-all duration-200 w-full sm:w-auto border border-card-border button-press"
         data-testid="button-toggle-filters"
       >
-        <Filter className="w-4 h-4" />
-        <span>Filters & Sort</span>
+        <Filter className="w-5 h-5" />
+        <span className="font-semibold">Filters & Sort</span>
         {hasActiveFilters && (
-          <span className="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full">Active</span>
+          <span className="bg-yellow-400 text-black text-xs px-2.5 py-1 rounded-full font-bold ml-1">Active</span>
         )}
-        <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-5 h-5 ml-auto transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
       </button>
 
       {isExpanded && (
-        <div className="mt-4 p-4 bg-gray-900 rounded-md border border-gray-800" data-testid="panel-filters">
+        <div className="mt-4 p-5 sm:p-6 bg-card-bg rounded-xl border border-card-border shadow-lg" data-testid="panel-filters">
           <div className="space-y-6">
             <div>
-              <label className="block text-white font-medium mb-2">Year Range</label>
-              <div className="flex gap-2 flex-wrap">
+              <label className="block text-white font-semibold mb-3 text-sm sm:text-base">Year Range</label>
+              <div className="flex gap-3 flex-wrap items-center">
                 <input
                   type="number"
                   min="1900"
@@ -149,10 +149,10 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
                   placeholder="From"
                   value={yearFrom}
                   onChange={(e) => setYearFrom(e.target.value)}
-                  className="flex-1 min-w-[120px] bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-yellow-400 focus:outline-none"
+                  className="flex-1 min-w-[120px] bg-black/40 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-yellow-400 focus:outline-none transition-colors"
                   data-testid="input-year-from"
                 />
-                <span className="text-gray-500 self-center">to</span>
+                <span className="text-gray-400 text-sm font-medium">to</span>
                 <input
                   type="number"
                   min="1900"
@@ -160,23 +160,23 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
                   placeholder="To"
                   value={yearTo}
                   onChange={(e) => setYearTo(e.target.value)}
-                  className="flex-1 min-w-[120px] bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-yellow-400 focus:outline-none"
+                  className="flex-1 min-w-[120px] bg-black/40 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-yellow-400 focus:outline-none transition-colors"
                   data-testid="input-year-to"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">Genres</label>
-              <div className="flex flex-wrap gap-2">
+              <label className="block text-white font-semibold mb-3 text-sm sm:text-base">Genres</label>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {genres.map((genre) => (
                   <button
                     key={genre.id}
                     onClick={() => handleGenreToggle(genre.id)}
-                    className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                       selectedGenres.includes(genre.id)
-                        ? 'bg-yellow-400 text-black'
-                        : 'bg-gray-800 text-white hover-elevate active-elevate-2'
+                        ? 'bg-yellow-400 text-black shadow-glow'
+                        : 'bg-black/40 text-white border border-gray-700 hover:bg-white/5 button-press'
                     }`}
                     data-testid={`button-genre-${genre.id}`}
                   >
@@ -187,8 +187,8 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">Rating Range (0-10)</label>
-              <div className="flex gap-2 flex-wrap">
+              <label className="block text-white font-semibold mb-3 text-sm sm:text-base">Rating Range (0-10)</label>
+              <div className="flex gap-3 flex-wrap items-center">
                 <input
                   type="number"
                   min="0"
@@ -197,10 +197,10 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
                   placeholder="From"
                   value={ratingFrom}
                   onChange={(e) => setRatingFrom(e.target.value)}
-                  className="flex-1 min-w-[120px] bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-yellow-400 focus:outline-none"
+                  className="flex-1 min-w-[120px] bg-black/40 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-yellow-400 focus:outline-none transition-colors"
                   data-testid="input-rating-from"
                 />
-                <span className="text-gray-500 self-center">to</span>
+                <span className="text-gray-400 text-sm font-medium">to</span>
                 <input
                   type="number"
                   min="0"
@@ -209,39 +209,39 @@ export default function FilterPanel({ type, onFilterChange, onClear }: FilterPan
                   placeholder="To"
                   value={ratingTo}
                   onChange={(e) => setRatingTo(e.target.value)}
-                  className="flex-1 min-w-[120px] bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-yellow-400 focus:outline-none"
+                  className="flex-1 min-w-[120px] bg-black/40 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-yellow-400 focus:outline-none transition-colors"
                   data-testid="input-rating-to"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">Sort By</label>
+              <label className="block text-white font-semibold mb-3 text-sm sm:text-base">Sort By</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full bg-gray-800 text-white px-3 py-2 rounded-md border border-gray-700 focus:border-yellow-400 focus:outline-none"
+                className="w-full bg-black/40 text-white px-4 py-3 rounded-xl border border-gray-700 focus:border-yellow-400 focus:outline-none transition-colors cursor-pointer"
                 data-testid="select-sort-by"
               >
                 {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="bg-gray-900">
                     {option.label}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-3 flex-wrap pt-2">
               <button
                 onClick={handleApply}
-                className="flex-1 min-w-[120px] bg-yellow-400 text-black px-4 py-2 rounded-md font-medium hover-elevate active-elevate-2"
+                className="flex-1 min-w-[140px] bg-yellow-400 text-black px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-glow transition-all duration-200 button-press"
                 data-testid="button-apply-filters"
               >
                 Apply Filters
               </button>
               <button
                 onClick={handleClearFilters}
-                className="flex-1 min-w-[120px] bg-gray-800 text-white px-4 py-2 rounded-md hover-elevate active-elevate-2"
+                className="flex-1 min-w-[140px] bg-black/40 text-white px-6 py-3 rounded-xl font-medium border border-gray-700 hover:bg-white/5 transition-all duration-200 button-press"
                 data-testid="button-clear-filters"
               >
                 Clear All
