@@ -11,17 +11,11 @@ interface VideoPlayerProps {
   language?: string;
 }
 
-// Extended Document interface for browser-specific fullscreen APIs
-interface ExtendedDocument extends Document {
-  webkitExitFullscreen?: () => Promise<void>;
-  mozCancelFullScreen?: () => Promise<void>;
-  msExitFullscreen?: () => Promise<void>;
-}
-
 export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl, language }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showExitButton, setShowExitButton] = useState(false);
+  const inactivityTimerRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -54,77 +48,70 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const fullscreenElement = document.fullscreenElement;
-      setIsFullscreen(!!fullscreenElement);
+      const fullscreen = !!document.fullscreenElement;
+      setIsFullscreen(fullscreen);
       
-      if (fullscreenElement) {
-        // Don't lock orientation immediately, wait a bit
-        setTimeout(async () => {
-          try {
-            if (screen.orientation && 'lock' in screen.orientation) {
-              await (screen.orientation as any).lock('landscape').catch(() => {});
-            }
-          } catch (error) {
-            console.log('Orientation lock not supported');
-          }
-        }, 300);
+      if (fullscreen) {
+        // Show button when entering fullscreen
+        setShowExitButton(true);
+        // Start timer to hide after 3 seconds
+        startInactivityTimer();
       } else {
-        try {
-          if (screen.orientation && 'unlock' in screen.orientation) {
-            (screen.orientation as any).unlock();
-          }
-        } catch (error) {
-          console.log('Orientation unlock not supported');
-        }
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Allow ESC key to exit fullscreen
-      if (event.key === 'Escape' && isFullscreen) {
-        exitFullscreen();
+        // Clear timer when exiting fullscreen
+        clearInactivityTimer();
       }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isFullscreen]);
+  }, []);
 
-  const exitFullscreen = () => {
-    const doc = document as ExtendedDocument;
-    
-    if (doc.fullscreenElement) {
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen().catch(() => {});
-      } else if (doc.webkitExitFullscreen) {
-        doc.webkitExitFullscreen().catch(() => {});
-      } else if (doc.mozCancelFullScreen) {
-        doc.mozCancelFullScreen().catch(() => {});
-      } else if (doc.msExitFullscreen) {
-        doc.msExitFullscreen().catch(() => {});
-      }
+  const startInactivityTimer = () => {
+    clearInactivityTimer();
+    inactivityTimerRef.current = setTimeout(() => {
+      setShowExitButton(false);
+    }, 3000); // Hide after 3 seconds of inactivity
+  };
+
+  const clearInactivityTimer = () => {
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+      inactivityTimerRef.current = undefined;
     }
   };
 
-  // Add a manual exit button for mobile devices
-  const ManualExitButton = () => {
-    if (!isFullscreen) return null;
-
-    return (
-      <button
-        onClick={exitFullscreen}
-        className="fixed top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-lg"
-        style={{ zIndex: 9999 }}
-      >
-        Exit Fullscreen
-      </button>
-    );
+  const handleUserActivity = () => {
+    if (isFullscreen) {
+      setShowExitButton(true);
+      startInactivityTimer();
+    }
   };
+
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  // Add event listeners for user activity
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const events = ['mousedown', 'mousemove', 'touchstart', 'touchmove', 'keydown', 'click'];
+    
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, { passive: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity);
+      });
+    };
+  }, [isFullscreen]);
 
   const getPlayerUrl = () => {
     const baseUrl = type === 'movie'
@@ -146,10 +133,36 @@ export default function VideoPlayer({ tmdbId, type, season, episode, subtitleUrl
 
   return (
     <>
-      <ManualExitButton />
-      <div ref={containerRef} className="w-full aspect-video bg-black rounded-md overflow-hidden" data-testid="player-video">
+      {/* Exit Fullscreen Button */}
+      {isFullscreen && showExitButton && (
+        <button
+          onClick={exitFullscreen}
+          className="fixed top-4 left-4 z-50 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full shadow-lg transition-all duration-200 backdrop-blur-sm"
+          style={{ zIndex: 9999 }}
+          aria-label="Exit fullscreen"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+          </svg>
+        </button>
+      )}
+
+      <div 
+        ref={containerRef} 
+        className="w-full aspect-video bg-black rounded-md overflow-hidden" 
+        data-testid="player-video"
+      >
         <iframe
-          ref={iframeRef}
           src={getPlayerUrl()}
           className="w-full h-full"
           allowFullScreen
