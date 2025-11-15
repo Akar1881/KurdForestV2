@@ -151,7 +151,7 @@ export default function ContinueWatching() {
           return (
             <div key={item.id} className="group flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] relative" data-testid={`card-continue-${item.id}`}>
               <Link href={getWatchUrl(item)} className="block">
-                <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-gray-800 mb-2 h-[210px] sm:h-[240px] md:h-[270px]">
+                <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-gray-800 mb-2 h-[105px] sm:h-[120px] md:h-[135px]">
                   <Image
                     src={posterUrl}
                     alt={item.title}
@@ -188,21 +188,22 @@ export default function ContinueWatching() {
                 </div>
               </Link>
 
-              <div className="absolute top-2 right-2">
+              {/* Menu button - always visible at bottom right */}
+              <div className="absolute bottom-12 right-1">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     toggleMenu(itemId);
                   }}
-                  className="h-8 w-8 flex items-center justify-center bg-black/50 hover:bg-black/70 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-6 w-6 flex items-center justify-center bg-black/70 hover:bg-black/90 rounded-sm transition-all"
                   data-testid={`button-menu-${item.id}`}
                 >
-                  <MoreVertical className="h-4 w-4 text-white" />
+                  <MoreVertical className="h-3 w-3 text-white" />
                 </button>
                 
                 {openMenuId === itemId && (
-                  <div className="absolute top-full right-0 mt-1 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-10 min-w-[200px]">
+                  <div className="absolute bottom-full right-0 mb-1 bg-gray-900 border border-gray-800 rounded-md shadow-lg z-10 min-w-[200px]">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
