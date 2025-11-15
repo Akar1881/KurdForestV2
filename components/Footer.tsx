@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Tv, Film } from 'lucide-react';
+import { Home, Tv, Film, Activity } from 'lucide-react';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Footer() {
     { href: '/', label: 'Home', icon: Home, testId: 'link-home' },
     { href: '/tv', label: 'TV Shows', icon: Tv, testId: 'link-tv' },
     { href: '/movies', label: 'Movies', icon: Film, testId: 'link-movies' },
+    { href: '/status', label: 'Status', icon: Activity, testId: 'link-status' },
   ];
 
   return (
