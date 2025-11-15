@@ -149,14 +149,14 @@ export default function ContinueWatching() {
           const itemId = String(item.id);
 
           return (
-            <div key={item.id} className="group flex-shrink-0 w-[140px] sm:w-[160px] md:w-[180px] relative" data-testid={`card-continue-${item.id}`}>
+            <div key={item.id} className="group flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px] relative" data-testid={`card-continue-${item.id}`}>
               <Link href={getWatchUrl(item)} className="block">
-                <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-gray-800 mb-2 h-[105px] sm:h-[120px] md:h-[135px]">
+                <div className="relative aspect-[3/2] rounded-md overflow-hidden bg-gray-800 mb-2 h-[100px] sm:h-[113px] md:h-[127px]">
                   <Image
                     src={posterUrl}
                     alt={item.title}
                     fill
-                    sizes="(max-width: 640px) 140px, (max-width: 768px) 160px, 180px"
+                    sizes="(max-width: 640px) 150px, (max-width: 768px) 170px, 190px"
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                   
@@ -189,7 +189,7 @@ export default function ContinueWatching() {
               </Link>
 
               {/* Menu button - always visible at bottom right */}
-              <div className="absolute bottom-12 right-1">
+              <div className="absolute bottom-10 right-1">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
