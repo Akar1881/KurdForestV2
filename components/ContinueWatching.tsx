@@ -149,14 +149,14 @@ export default function ContinueWatching() {
           const itemId = String(item.id);
 
           return (
-            <div key={item.id} className="group flex-shrink-0 w-[150px] sm:w-[170px] md:w-[190px] relative" data-testid={`card-continue-${item.id}`}>
+            <div key={item.id} className="group flex-shrink-0 w-[160px] sm:w-[180px] md:w-[200px] relative" data-testid={`card-continue-${item.id}`}>
               <Link href={getWatchUrl(item)} className="block">
-                <div className="relative aspect-[3/2] rounded-md overflow-hidden bg-gray-800 mb-2 h-[100px] sm:h-[113px] md:h-[127px]">
+                <div className="relative aspect-[16/10] rounded-md overflow-hidden bg-gray-800 mb-2 h-[100px] sm:h-[112px] md:h-[125px]">
                   <Image
                     src={posterUrl}
                     alt={item.title}
                     fill
-                    sizes="(max-width: 640px) 150px, (max-width: 768px) 170px, 190px"
+                    sizes="(max-width: 640px) 160px, (max-width: 768px) 180px, 200px"
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                   
