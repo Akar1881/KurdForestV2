@@ -66,6 +66,19 @@ export function formatRuntime(minutes: number): string {
   return `${hours}h ${mins}m`;
 }
 
+export interface SearchSuggestion {
+  id: number;
+  title: string;
+  media_type: 'movie' | 'tv';
+  release_date?: string;
+  first_air_date?: string;
+  poster_path?: string;
+}
+
+export interface SearchSuggestionsResponse {
+  suggestions: SearchSuggestion[];
+}
+
 export const GENRE_MAP: Record<number, string> = {
   28: 'Action',
   12: 'Adventure',
