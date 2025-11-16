@@ -1,15 +1,16 @@
+// components/Hero.tsx - Updated
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Play, Info } from 'lucide-react';
+import { Star, Play, Info, Film, Tv } from 'lucide-react';
 import { getImageUrl, GENRE_MAP } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 
 interface HeroProps {
   items: TMDBMovie[];
-  type: 'movie' | 'tv';
+  type: 'movie' | 'tv' | 'mixed';
 }
 
 export default function Hero({ items, type }: HeroProps) {
@@ -38,6 +39,8 @@ export default function Hero({ items, type }: HeroProps) {
   const title = currentItem.title || currentItem.name || 'Untitled';
   const backdropUrl = getImageUrl(currentItem.backdrop_path, 'w1280');
   const genres = currentItem.genre_ids?.slice(0, 3).map((id) => GENRE_MAP[id]).filter(Boolean) || [];
+  const mediaType = currentItem.media_type || type;
+  const isMovie = mediaType === 'movie';
 
   return (
     <section className="relative w-full h-[70vh] sm:h-[75vh] md:h-[80vh] lg:h-[85vh] max-h-[800px] overflow-hidden">
@@ -57,6 +60,24 @@ export default function Hero({ items, type }: HeroProps) {
       <div className="absolute inset-0 flex items-end">
         <div className="container-custom pb-8 sm:pb-12 md:pb-16 lg:pb-20 w-full">
           <div className="max-w-3xl space-y-4 sm:space-y-5 md:space-y-6">
+            {/* Media Type Badge */}
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm ${
+                isMovie ? 'bg-blue-500/20' : 'bg-purple-500/20'
+              }`}>
+                {isMovie ? (
+                  <Film className="w-4 h-4 text-blue-300" />
+                ) : (
+                  <Tv className="w-4 h-4 text-purple-300" />
+                )}
+                <span className={`text-sm font-medium ${
+                  isMovie ? 'text-blue-300' : 'text-purple-300'
+                }`}>
+                  {isMovie ? 'MOVIE' : 'TV SHOW'}
+                </span>
+              </div>
+            </div>
+
             <h1 
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-lg"
               data-testid="text-hero-title"
@@ -93,15 +114,15 @@ export default function Hero({ items, type }: HeroProps) {
 
             <div className="flex flex-wrap gap-3 sm:gap-4 pt-2">
               <Link
-                href={`/watch/${type}/${currentItem.id}`}
-                className="flex items-center gap-2 bg-white text-black px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl button-press font-semibold text-sm sm:text-base"
+                href={`/watch/${mediaType}/${currentItem.id}`}
+                className="flex items-center justify-center gap-2 bg-white text-black px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl button-press font-semibold text-sm sm:text-base"
                 data-testid="button-hero-watch"
               >
                 <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
                 <span>Watch Now</span>
               </Link>
               <Link
-                href={`/${type}/${currentItem.id}`}
+                href={`/${mediaType}/${currentItem.id}`}
                 className="flex items-center gap-2 glass-light text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-white/20 transition-all duration-200 border border-white/20 backdrop-blur-md button-press font-medium text-sm sm:text-base"
                 data-testid="button-hero-details"
               >
@@ -121,7 +142,7 @@ export default function Hero({ items, type }: HeroProps) {
             onClick={() => setCurrentIndex(idx)}
             className={`h-1 rounded-full transition-all duration-300 ${
               idx === currentIndex
-                ? 'bg-white w-8 sm:w-12'
+                ? 'bg-yellow-400 w-8 sm:w-12'
                 : 'bg-white/40 w-4 sm:w-6 hover:bg-white/60'
             }`}
             aria-label={`Go to slide ${idx + 1}`}
