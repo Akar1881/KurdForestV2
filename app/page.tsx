@@ -5,6 +5,7 @@ import HorizontalScroller from '@/components/HorizontalScroller';
 import TrendingNow from '@/components/TrendingNow';
 import { tmdbFetch } from '@/lib/tmdb';
 import type { TMDBResponse, TMDBMovie } from '@/lib/types';
+import { Heart, Star, Tv } from "lucide-react";
 
 export const metadata = {
   title: "KurdForest – Kurdish Movies & TV Shows",
@@ -82,9 +83,38 @@ export default async function HomePage() {
       <div className="py-8 sm:py-10 md:py-12">
         <ContinueWatching />
         <TrendingNow items={trendingItems} />
-        <HorizontalScroller title="Popular Movies" items={popularMovies} type="movie" />
-        <HorizontalScroller title="Top Rated Movies" items={topRatedMovies} type="movie" />
-        <HorizontalScroller title="Top Rated TV Shows" items={topRatedTV} type="tv" />
+        <HorizontalScroller
+  title={
+    <div className="flex items-center gap-2">
+      <Heart className="w-6 h-6 text-yellow-400" />
+      <span>Popular Movies</span>
+    </div>
+  }
+  items={popularMovies}
+  type="movie"
+/>
+
+<HorizontalScroller
+  title={
+    <div className="flex items-center gap-2">
+      <Star className="w-6 h-6 text-blue-400" />
+      <span>Top Rated Movies</span>
+    </div>
+  }
+  items={topRatedMovies}
+  type="movie"
+/>
+
+<HorizontalScroller
+  title={
+    <div className="flex items-center gap-2">
+      <Tv className="w-6 h-6 text-purple-400" />
+      <span>Top Rated TV Shows</span>
+    </div>
+  }
+  items={topRatedTV}
+  type="tv"
+/>
       </div>
     </div>
   );
