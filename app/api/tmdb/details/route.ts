@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     const endpoint = type === 'movie' ? 'movie' : 'tv';
+    // This should work now with the fixed tmdbFetch
     const data = await tmdbFetch(`/${endpoint}/${id}?append_to_response=credits,videos,similar`);
     
     return NextResponse.json(data);

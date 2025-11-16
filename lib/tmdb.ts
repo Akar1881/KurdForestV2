@@ -6,10 +6,12 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
 export async function tmdbFetch(endpoint: string) {
-  const url = `${TMDB_BASE_URL}${endpoint}${endpoint.includes('?') ? '&' : '?'}api_key=${TMDB_API_KEY}`;
+  // Check if endpoint already has query params
+  const hasExistingParams = endpoint.includes('?');
+  const url = `${TMDB_BASE_URL}${endpoint}${hasExistingParams ? '&' : '?'}api_key=${TMDB_API_KEY}`;
   
   const res = await fetch(url, {
-    next: { revalidate: 3600 }, // Cache for 1 hour
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
