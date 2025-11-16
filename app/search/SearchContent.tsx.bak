@@ -65,7 +65,7 @@ export default function SearchContent() {
         </div>
       ) : (
         <>
-          <VerticalGrid items={results} />
+          <VerticalGrid items={results} type="movie" />
           {totalPages > 1 && (
             <Pagination
               currentPage={currentPage}
