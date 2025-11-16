@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { getImageUrl } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
+import { ReactNode } from 'react';
 
 interface HorizontalScrollerProps {
-  title: string;
+  title: ReactNode;
   items: TMDBMovie[];
   type: 'movie' | 'tv';
 }
@@ -13,13 +14,23 @@ interface HorizontalScrollerProps {
 export default function HorizontalScroller({ title, items, type }: HorizontalScrollerProps) {
   if (!items || items.length === 0) return null;
 
+  // 👇 FIX: Safely generate ID if title is a string
+  const sectionId =
+    typeof title === "string"
+      ? title.toLowerCase().replace(/\s+/g, "-")
+      : "section";
+
   return (
     <section className="mb-10 sm:mb-12">
       <div className="container-custom">
-        <h2 className="text-white text-xl sm:text-2xl font-bold mb-4 sm:mb-6" data-testid={`text-section-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+        <h2
+          className="text-white text-xl sm:text-2xl font-bold mb-4 sm:mb-6"
+          data-testid={`text-section-${sectionId}`}
+        >
           {title}
         </h2>
       </div>
+
       <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pl-4 sm:pl-6 lg:pl-8 pr-4 sm:pr-6 lg:pr-8 pb-2 smooth-scroll">
         {items.map((item) => {
           const itemTitle = item.title || item.name || 'Untitled';
@@ -51,7 +62,11 @@ export default function HorizontalScroller({ title, items, type }: HorizontalScr
                   </div>
                 )}
               </div>
-              <h3 className="text-sm text-white font-semibold line-clamp-2 group-hover:text-yellow-400 transition-colors duration-200 mt-2 px-1" data-testid={`text-title-${item.id}`}>
+
+              <h3
+                className="text-sm text-white font-semibold line-clamp-2 group-hover:text-yellow-400 transition-colors duration-200 mt-2 px-1"
+                data-testid={`text-title-${item.id}`}
+              >
                 {itemTitle}
               </h3>
             </Link>
