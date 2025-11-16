@@ -116,3 +116,17 @@ export interface FilterOptions {
   ratingTo?: number;
   sortBy?: 'popularity.desc' | 'popularity.asc' | 'vote_average.desc' | 'vote_average.asc' | 'primary_release_date.desc' | 'primary_release_date.asc' | 'first_air_date.desc' | 'first_air_date.asc' | 'original_title.asc' | 'original_title.desc';
 }
+
+// Add these missing types for SearchBar
+export interface SearchSuggestion {
+  id: number;
+  title: string;
+  media_type: 'movie' | 'tv';
+  release_date?: string;
+  first_air_date?: string;
+  poster_path?: string;
+}
+
+export interface SearchSuggestionsResponse {
+  suggestions: SearchSuggestion[];
+}
