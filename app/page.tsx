@@ -41,7 +41,7 @@ async function getTrendingTV() {
 
 async function getTrendingAll() {
   const data: TMDBResponse<TMDBMovie> = await tmdbFetch('/trending/all/week');
-  return data.results.slice(0, 5);
+  return data.results; // no slicing here
 }
 
 async function getPopularMovies() {
@@ -73,7 +73,7 @@ export default async function HomePage() {
   const trendingItems = [...trendingMovies.slice(0, 5), ...trendingTV.slice(0, 5)];
   
   // Use trending all for hero
-  const heroItems = trendingAll.slice(0, 5);
+  const heroItems = trendingAll.slice(0, 10);
 
   return (
     <div className="min-h-screen bg-black">
