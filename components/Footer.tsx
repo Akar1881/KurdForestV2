@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Tv, Film, Bookmark, Activity } from 'lucide-react';
+import { Home, Tv, Film, Bookmark, Activity, Compass } from 'lucide-react';
 
 export default function Footer() {
   const pathname = usePathname();
 
   const tabs = [
     { href: '/', label: 'Home', icon: Home, testId: 'link-home' },
+    { href: '/explore', label: 'Explore', icon: Compass, testId: 'link-explore' },
     { href: '/tv', label: 'TV Shows', icon: Tv, testId: 'link-tv' },
     { href: '/movies', label: 'Movies', icon: Film, testId: 'link-movies' },
     { href: '/my-list', label: 'My List', icon: Bookmark, testId: 'link-my-list' },

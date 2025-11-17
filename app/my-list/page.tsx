@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Bookmark, Heart, Trash2 } from 'lucide-react';
+import { Star, Bookmark, Heart, Trash2, AlertCircle } from 'lucide-react';
 import { useWatchlistContext } from '@/lib/WatchlistContext';
 import { getImageUrl } from '@/lib/tmdb';
 import type { SavedItem } from '@/lib/types';
@@ -104,6 +104,25 @@ export default function MyListPage() {
               ))}
             </div>
           )}
+
+          {/* Local Storage Warning */}
+          <div className="mt-8 mb-20 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border border-yellow-400/30 rounded-xl p-4 sm:p-6" data-testid="alert-storage-warning">
+            <div className="flex gap-3 sm:gap-4">
+              <div className="flex-shrink-0">
+                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-yellow-400 font-semibold text-sm sm:text-base mb-2">
+                  Important: Local Storage Notice
+                </h3>
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+                  Your saved items (watchlist and favorites) are stored locally in your browser's storage. 
+                  If you clear your browser data, switch to a different device, or use a different browser, 
+                  you will lose all your saved items. This data is not synced across devices.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
