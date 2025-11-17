@@ -29,9 +29,17 @@ export default function TVDetailsPage() {
       try {
         const res = await fetch(`/api/tmdb/details?id=${id}&type=tv`);
         const data = await res.json();
-        setShow(data);
+        
+        // Handle 404 or error responses
+        if (!res.ok || data.error || data.notFound) {
+          console.error('TV show not found or error:', data);
+          setShow(null);
+        } else {
+          setShow(data);
+        }
       } catch (error) {
         console.error('Failed to fetch TV show details:', error);
+        setShow(null);
       } finally {
         setLoading(false);
       }
@@ -102,8 +110,20 @@ export default function TVDetailsPage() {
 
   if (!show) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500 text-sm">TV show not found</div>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-black px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-white mb-4">TV Show Not Found</h1>
+          <p className="text-gray-400 mb-8">
+            This TV show doesn't exist in our database or may have been removed.
+          </p>
+          <Link
+            href="/tv"
+            className="inline-flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-xl hover:bg-yellow-500 transition-colors font-medium"
+            data-testid="button-back-to-tv"
+          >
+            Browse TV Shows
+          </Link>
+        </div>
       </div>
     );
   }

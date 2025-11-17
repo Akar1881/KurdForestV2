@@ -10,15 +10,51 @@ export async function tmdbFetch(endpoint: string) {
   const hasExistingParams = endpoint.includes('?');
   const url = `${TMDB_BASE_URL}${endpoint}${hasExistingParams ? '&' : '?'}api_key=${TMDB_API_KEY}`;
   
+  console.log('[TMDB] Fetching:', endpoint);
+  
   const res = await fetch(url, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 600 }, // Reduced from 3600 to 600 seconds (10 minutes) to prevent stale data
   });
 
   if (!res.ok) {
-    throw new Error(`TMDB API Error: ${res.status}`);
+    const errorText = await res.text().catch(() => 'Unable to read error response');
+    console.error('[TMDB] API Error:', {
+      status: res.status,
+      statusText: res.statusText,
+      endpoint,
+      error: errorText
+    });
+    throw new Error(`TMDB API Error: ${res.status} - ${res.statusText}`);
   }
 
-  return res.json();
+  const data = await res.json();
+  
+  // Log warnings for missing data when using append_to_response
+  if (endpoint.includes('append_to_response')) {
+    const missing = [];
+    if (endpoint.includes('credits') && !data.credits) missing.push('credits');
+    if (endpoint.includes('videos') && !data.videos) missing.push('videos');
+    if (endpoint.includes('similar') && !data.similar) missing.push('similar');
+    
+    if (missing.length > 0) {
+      console.warn('[TMDB] Missing appended data:', {
+        endpoint,
+        id: data.id,
+        title: data.title || data.name,
+        missing
+      });
+    }
+    
+    // Log if data exists but is empty
+    if (data.credits && (!data.credits.cast || data.credits.cast.length === 0)) {
+      console.warn('[TMDB] Empty cast data:', { endpoint, id: data.id, title: data.title || data.name });
+    }
+    if (data.similar && (!data.similar.results || data.similar.results.length === 0)) {
+      console.warn('[TMDB] Empty similar content:', { endpoint, id: data.id, title: data.title || data.name });
+    }
+  }
+
+  return data;
 }
 
 export function getImageUrl(path: string | null, size: 'w200' | 'w300' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500') {

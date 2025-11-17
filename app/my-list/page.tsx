@@ -8,10 +8,11 @@ import { useWatchlistContext } from '@/lib/WatchlistContext';
 import { getImageUrl } from '@/lib/tmdb';
 import type { SavedItem } from '@/lib/types';
 import GAClientTracker from '@/components/GAClientTracker';
+import GoogleSignIn from '@/components/GoogleSignIn';
 
 export default function MyListPage() {
   const [activeTab, setActiveTab] = useState<'watchlist' | 'favorites'>('watchlist');
-  const { watchlist, removeFromWatchlist, favorites, removeFromFavorites } = useWatchlistContext();
+  const { watchlist, removeFromWatchlist, favorites, removeFromFavorites, isAuthenticated, isSyncing } = useWatchlistContext();
 
   const items = activeTab === 'watchlist' ? watchlist : favorites;
   const removeItem = activeTab === 'watchlist' ? removeFromWatchlist : removeFromFavorites;
@@ -72,6 +73,11 @@ export default function MyListPage() {
 
         {/* Content */}
         <div className="container-custom py-6">
+          {/* Google Sign-In Section */}
+          <div className="mb-6 p-4 sm:p-6 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-xl border border-white/10">
+            <GoogleSignIn />
+          </div>
+
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className={`p-6 rounded-full mb-4 ${
@@ -105,24 +111,40 @@ export default function MyListPage() {
             </div>
           )}
 
-          {/* Local Storage Warning */}
-          <div className="mt-8 mb-20 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border border-yellow-400/30 rounded-xl p-4 sm:p-6" data-testid="alert-storage-warning">
-            <div className="flex gap-3 sm:gap-4">
-              <div className="flex-shrink-0">
-                <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+          {/* Auth-Aware Warning */}
+          {!isAuthenticated && (
+            <div className="mt-8 mb-20 bg-gradient-to-br from-yellow-400/10 to-orange-500/10 border border-yellow-400/30 rounded-xl p-4 sm:p-6" data-testid="alert-storage-warning">
+              <div className="flex gap-3 sm:gap-4">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-yellow-400 font-semibold text-sm sm:text-base mb-2">
+                    Important: Local Storage Notice
+                  </h3>
+                  <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
+                    Your saved items are stored locally in your browser. If you clear browser data, 
+                    switch devices, or use a different browser, you will lose all your saved items. 
+                    <span className="block mt-2 font-medium text-white">
+                      Sign in with Google to sync your data across all devices!
+                    </span>
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-yellow-400 font-semibold text-sm sm:text-base mb-2">
-                  Important: Local Storage Notice
-                </h3>
-                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
-                  Your saved items (watchlist and favorites) are stored locally in your browser's storage. 
-                  If you clear your browser data, switch to a different device, or use a different browser, 
-                  you will lose all your saved items. This data is not synced across devices.
+            </div>
+          )}
+
+          {/* Syncing Indicator */}
+          {isSyncing && (
+            <div className="mt-8 mb-20 bg-gradient-to-br from-green-400/10 to-blue-500/10 border border-green-400/30 rounded-xl p-4 sm:p-6" data-testid="alert-syncing">
+              <div className="flex gap-3 sm:gap-4 items-center">
+                <div className="w-5 h-5 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-green-400 text-sm font-medium">
+                  Syncing to Google Drive...
                 </p>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

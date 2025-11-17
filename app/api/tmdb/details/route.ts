@@ -15,12 +15,25 @@ export async function GET(request: NextRequest) {
     }
 
     const endpoint = type === 'movie' ? 'movie' : 'tv';
-    // This should work now with the fixed tmdbFetch
     const data = await tmdbFetch(`/${endpoint}/${id}?append_to_response=credits,videos,similar`);
     
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Details API error:', error);
+    
+    // Handle 404 specifically - content not found in TMDB
+    if (error.message?.includes('404')) {
+      return NextResponse.json(
+        { 
+          error: 'Content not found',
+          message: 'This movie or TV show does not exist in our database.',
+          notFound: true 
+        },
+        { status: 404 }
+      );
+    }
+    
+    // Other errors
     return NextResponse.json(
       { error: 'Failed to fetch details' },
       { status: 500 }

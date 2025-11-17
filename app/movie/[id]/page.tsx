@@ -29,9 +29,17 @@ export default function MovieDetailsPage() {
       try {
         const res = await fetch(`/api/tmdb/details?id=${id}&type=movie`);
         const data = await res.json();
-        setMovie(data);
+        
+        // Handle 404 or error responses
+        if (!res.ok || data.error || data.notFound) {
+          console.error('Movie not found or error:', data);
+          setMovie(null);
+        } else {
+          setMovie(data);
+        }
       } catch (error) {
         console.error('Failed to fetch movie details:', error);
+        setMovie(null);
       } finally {
         setLoading(false);
       }
@@ -102,8 +110,20 @@ export default function MovieDetailsPage() {
 
   if (!movie) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-black">
-        <div className="text-gray-500 text-sm">Movie not found</div>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-black px-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-white mb-4">Movie Not Found</h1>
+          <p className="text-gray-400 mb-8">
+            This movie doesn't exist in our database or may have been removed.
+          </p>
+          <Link
+            href="/movies"
+            className="inline-flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-xl hover:bg-yellow-500 transition-colors font-medium"
+            data-testid="button-back-to-movies"
+          >
+            Browse Movies
+          </Link>
+        </div>
       </div>
     );
   }

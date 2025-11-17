@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { WatchlistProvider } from '@/lib/WatchlistContext';
+import SessionProvider from '@/components/SessionProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,9 +20,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <WatchlistProvider>
-        {children}
-      </WatchlistProvider>
+      <SessionProvider>
+        <WatchlistProvider>
+          {children}
+        </WatchlistProvider>
+      </SessionProvider>
     </QueryClientProvider>
   );
 }
