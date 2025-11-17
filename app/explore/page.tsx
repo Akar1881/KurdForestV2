@@ -6,7 +6,7 @@ import { TrendingUp, Star, Heart, Calendar } from 'lucide-react';
 
 export const metadata = {
   title: "Explore – KurdForest",
-  description: "Discover trending, top-rated, and upcoming Kurdish movies & TV shows on KurdForest.",
+  description: "Discover trending, top-rated, and upcoming  Movies & TV shows on KurdForest.",
 };
 
 async function getTopRatedMovies() {
@@ -84,7 +84,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={trendingToday}
-        type="movie"
       />
 
       <ExploreScroller
@@ -95,7 +94,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={topRatedMovies}
-        type="movie"
       />
 
       <ExploreScroller
@@ -106,7 +104,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={topRatedTV}
-        type="tv"
       />
 
       <ExploreScroller
@@ -117,7 +114,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={popularMovies}
-        type="movie"
       />
 
       <ExploreScroller
@@ -128,7 +124,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={popularTV}
-        type="tv"
       />
 
       <ExploreScroller
@@ -139,7 +134,6 @@ export default async function ExplorePage() {
           </div>
         }
         items={upcomingTV}
-        type="tv"
       />
 
       <ComingSoonCalendar upcomingMovies={allUpcoming} />
