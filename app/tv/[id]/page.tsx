@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star, Play, Calendar, Tv, Share2, Copy, Check, X, Twitter, Facebook, MessageCircle, Link2 } from 'lucide-react';
+import { Star, Play, Calendar, Tv, Share2, Copy, Check, X, Twitter, Facebook, MessageCircle, Link2, Bookmark, Heart } from 'lucide-react';
 import TrailerModal from '@/components/TrailerModal';
 import HorizontalScroller from '@/components/HorizontalScroller';
 import { getImageUrl } from '@/lib/tmdb';
 import type { TVDetails, Cast } from '@/lib/types';
 import GAClientTracker from '@/components/GAClientTracker';
+import { useWatchlistContext } from '@/lib/WatchlistContext';
 
 export default function TVDetailsPage() {
   const params = useParams();
@@ -20,6 +21,8 @@ export default function TVDetailsPage() {
   const [showTrailer, setShowTrailer] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist, isInFavorites, addToFavorites, removeFromFavorites } = useWatchlistContext();
 
   useEffect(() => {
     const fetchShow = async () => {
@@ -133,9 +136,10 @@ export default function TVDetailsPage() {
         {/* Content Container */}
         <div className="container-custom -mt-24 sm:-mt-32 md:-mt-40 relative z-10 pb-12">
           <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 mb-8 sm:mb-12">
-            {/* Poster */}
+            {/* Poster Section */}
             <div className="flex-shrink-0">
-              <div className="relative w-40 h-60 sm:w-48 sm:h-72 md:w-56 md:h-84 lg:w-64 lg:h-96 rounded-xl overflow-hidden bg-card-bg shadow-card-hover border border-card-border">
+              {/* Poster */}
+              <div className="relative w-40 h-60 sm:w-48 sm:h-72 md:w-56 md:h-84 lg:w-64 lg:h-96 rounded-xl overflow-hidden bg-card-bg shadow-card-hover border border-card-border mb-4">
                 <Image
                   src={posterUrl}
                   alt={show.name}
@@ -143,6 +147,67 @@ export default function TVDetailsPage() {
                   className="object-cover"
                   sizes="(max-width: 640px) 160px, (max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
                 />
+              </div>
+
+              {/* Favorite & Watchlist Buttons - Under poster */}
+              <div className="flex justify-start gap-3 sm:gap-4">
+                {/* Watchlist Button */}
+                <button
+                  onClick={() => {
+                    if (isInWatchlist(Number(id), 'tv')) {
+                      removeFromWatchlist(Number(id), 'tv');
+                    } else {
+                      addToWatchlist({
+                        id: Number(id),
+                        title: show.name,
+                        name: show.name,
+                        poster_path: show.poster_path,
+                        backdrop_path: show.backdrop_path,
+                        vote_average: show.vote_average,
+                        first_air_date: show.first_air_date,
+                        media_type: 'tv',
+                      });
+                    }
+                  }}
+                  className={`flex items-center justify-center p-3 sm:p-4 rounded-xl transition-all duration-200 border backdrop-blur-md button-press ${
+                    isInWatchlist(Number(id), 'tv')
+                      ? 'bg-yellow-400/20 border-yellow-400/50 text-yellow-400'
+                      : 'glass-light border-white/20 text-white hover:bg-white/20'
+                  }`}
+                  data-testid="button-watchlist"
+                  aria-label={isInWatchlist(Number(id), 'tv') ? 'Remove from watchlist' : 'Add to watchlist'}
+                >
+                  <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isInWatchlist(Number(id), 'tv') ? 'fill-current' : ''}`} />
+                </button>
+                
+                {/* Favorite Button */}
+                <button
+                  onClick={() => {
+                    if (isInFavorites(Number(id), 'tv')) {
+                      removeFromFavorites(Number(id), 'tv');
+                    } else {
+                      addToFavorites({
+                        id: Number(id),
+                        title: show.name,
+                        name: show.name,
+                        poster_path: show.poster_path,
+                        backdrop_path: show.backdrop_path,
+                        vote_average: show.vote_average,
+                        first_air_date: show.first_air_date,
+                        media_type: 'tv',
+                      });
+                    }
+                  }}
+                  className={`flex items-center justify-center p-3 sm:p-4 rounded-xl transition-all duration-200 border backdrop-blur-md button-press ${
+                    isInFavorites(Number(id), 'tv')
+                      ? 'bg-red-500/20 border-red-500/50 text-red-500'
+                      : 'glass-light border-white/20 text-white hover:bg-white/20'
+                  }`}
+                  data-testid="button-favorite"
+                  aria-label={isInFavorites(Number(id), 'tv') ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Heart className={`w-5 h-5 sm:w-6 sm:h-6 ${isInFavorites(Number(id), 'tv') ? 'fill-current' : ''}`} />
+                </button>
               </div>
             </div>
 

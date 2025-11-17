@@ -26,15 +26,20 @@ Preferred communication style: Simple, everyday language.
 - **Pros**: Small bundle size, no CSS naming conventions needed, responsive utilities
 - **Cons**: Can lead to verbose class names
 
-**State Management**: React Query (@tanstack/react-query)
-- **Rationale**: Handles server state management, caching, and automatic refetching
-- **Configuration**: 1-minute stale time, disabled window focus refetching
-- **Pros**: Automatic background updates, optimistic updates, request deduplication
-- **Cons**: Additional learning curve for complex query scenarios
+**State Management**: 
+- **React Query (@tanstack/react-query)**: Handles server state management, caching, and automatic refetching
+  - **Configuration**: 1-minute stale time, disabled window focus refetching
+  - **Pros**: Automatic background updates, optimistic updates, request deduplication
+  - **Cons**: Additional learning curve for complex query scenarios
+- **WatchlistContext**: Custom React Context provider for managing watchlist and favorites
+  - **Storage**: Browser localStorage (no database required)
+  - **Features**: Cross-tab synchronization via storage events, centralized state management
+  - **Location**: lib/WatchlistContext.tsx
+  - **Rationale**: Enables users to save movies/TV shows locally without requiring authentication
 
 **Client/Server Split**:
 - Server Components: Home page, static content, initial data fetching
-- Client Components: Interactive elements (search, pagination, video player, modals)
+- Client Components: Interactive elements (search, pagination, video player, modals, watchlist/favorites)
 - **Rationale**: Reduces client-side JavaScript while maintaining interactivity
 
 ## Backend Architecture
@@ -59,11 +64,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Data Storage Solutions
 
-**No Primary Database**: Application is stateless
-- **Rationale**: All content metadata sourced from TMDB API, no user accounts or persistent storage needed
+**Browser localStorage for User Data**: Application uses client-side storage for watchlist/favorites
+- **Implementation**: WatchlistContext manages localStorage operations
+- **Data Stored**: Saved movies/TV shows with metadata (title, poster, rating, year, media type)
+- **Rationale**: Enables personalization without authentication or server-side database
+- **Pros**: Zero backend costs, instant save/load, works offline, privacy-friendly
+- **Cons**: Data limited to single browser/device, cleared if user clears browser data
+
+**No Server Database**: Application is stateless on the server
+- **Rationale**: All content metadata sourced from TMDB API
 - **Caching**: Next.js automatic caching with 1-hour revalidation
 - **Pros**: Simplified architecture, no database maintenance
-- **Cons**: Cannot store user preferences or watch history
+- **Cons**: Cannot sync user data across devices
 
 **ORM Setup**: Drizzle ORM with Neon Database connection configured
 - **Current Status**: Dependencies installed but not actively used
@@ -77,15 +89,16 @@ Preferred communication style: Simple, everyday language.
 - `/movies` - Vertical grid of popular movies with pagination
 - `/tv` - Vertical grid of popular TV shows with pagination
 - `/search` - Search interface with paginated results
-- `/movie/[id]` - Movie details with cast, trailer, and similar content
-- `/tv/[id]` - TV show details with season selector and episode list
+- `/movie/[id]` - Movie details with cast, trailer, similar content, and watchlist/favorites buttons
+- `/tv/[id]` - TV show details with season selector, episode list, and watchlist/favorites buttons
 - `/watch/movie/[id]` - Movie player with subtitle options
 - `/watch/tv/[id]/[season]/[episode]` - TV episode player with subtitle options
+- `/my-list` - User's saved watchlist and favorites with toggle tabs
 
 **Layout System**:
 - Fixed header (top) with back button, title, and search
 - Main content area with top/bottom padding for fixed elements
-- Fixed footer (bottom) with 3-tab navigation (Home, TV Shows, Movies)
+- Fixed footer (bottom) with 4-tab navigation (Home, TV Shows, Movies, My List)
 
 ## Design Patterns
 
