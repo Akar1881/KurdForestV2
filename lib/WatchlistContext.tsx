@@ -15,6 +15,8 @@ interface WatchlistContextType {
   isInFavorites: (id: number, media_type: 'movie' | 'tv') => boolean;
   isSyncing: boolean;
   isAuthenticated: boolean;
+  isInitialized: boolean;
+  syncData: () => Promise<void>;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
@@ -166,6 +168,35 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     return favorites.some(i => i.id === id && i.media_type === media_type);
   };
 
+  // Manual sync function that can be called externally
+  const syncData = async () => {
+    if (!session.data?.accessToken) {
+      console.log('[Watchlist] Cannot sync - user not authenticated');
+      return;
+    }
+    
+    setIsSyncing(true);
+    try {
+      const response = await fetch('/api/watchlist/sync');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.watchlist) setWatchlist(data.watchlist);
+        if (data.favorites) setFavorites(data.favorites);
+        
+        // Also update localStorage as cache
+        localStorage.setItem('watchlist', JSON.stringify(data.watchlist || []));
+        localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
+        console.log('[Watchlist] Sync successful');
+      } else {
+        console.error('[Watchlist] Sync failed with status:', response.status);
+      }
+    } catch (error) {
+      console.error('[Watchlist] Failed to sync from Google Drive:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   // Don't render children until initialized to avoid hydration mismatches
   if (!isInitialized) {
     return null;
@@ -184,6 +215,8 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
         isInFavorites,
         isSyncing,
         isAuthenticated: !!session.data,
+        isInitialized,
+        syncData,
       }}
     >
       {children}

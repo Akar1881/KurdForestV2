@@ -6,13 +6,17 @@ import Providers from './providers';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
-  title: "KurdForest – Kurdish Movies & TV Shows",
-  description: "Watch Kurdish movies and TV shows online on KurdForest.",
-  keywords: "kurdforest, kurd forest, Kurdish movies, Kurdish TV shows",
+  metadataBase: new URL('https://www.kurdforest.xyz'),
+  title: {
+    template: '%s | KurdForest',
+    default: "KurdForest – Watch Your Favorite Movies & TV Shows",
+  },
+  description: "KurdForest - Watch Your Favorite movies & tvshows for free all in one place with your desired language subtitle",
+  keywords: "kurdforest, kurd forest, Kurdish movies, Kurdish TV shows, free movies, free tv shows, subtitles",
   authors: [{ name: 'KurdForest', url: 'https://www.kurdforest.xyz' }],
   openGraph: {
-    title: "KurdForest – Kurdish Movies & TV Shows",
-    description: "Watch Kurdish movies and TV shows online on KurdForest.",
+    title: "KurdForest – Watch Your Favorite Movies & TV Shows",
+    description: "KurdForest - Watch Your Favorite movies & tvshows for free all in one place with your desired language subtitle",
     url: 'https://www.kurdforest.xyz',
     siteName: 'KurdForest',
     images: [
@@ -28,8 +32,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KurdForest – Kurdish Movies & TV Shows',
-    description: 'Watch Kurdish movies and TV shows online on KurdForest.',
+    title: 'KurdForest – Watch Your Favorite Movies & TV Shows',
+    description: 'KurdForest - Watch Your Favorite movies & tvshows for free all in one place with your desired language subtitle',
     images: ['https://www.kurdforest.xyz/og-image.png'],
     creator: '@KurdForest',
   },

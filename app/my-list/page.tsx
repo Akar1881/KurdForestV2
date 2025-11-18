@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Bookmark, Heart, Trash2, AlertCircle } from 'lucide-react';
@@ -12,7 +12,15 @@ import GoogleSignIn from '@/components/GoogleSignIn';
 
 export default function MyListPage() {
   const [activeTab, setActiveTab] = useState<'watchlist' | 'favorites'>('watchlist');
-  const { watchlist, removeFromWatchlist, favorites, removeFromFavorites, isAuthenticated, isSyncing } = useWatchlistContext();
+  const { watchlist, removeFromWatchlist, favorites, removeFromFavorites, isAuthenticated, isSyncing, isInitialized, syncData } = useWatchlistContext();
+
+  // Sync data from Google Drive whenever the page mounts if authenticated and initialized
+  useEffect(() => {
+    if (isAuthenticated && isInitialized) {
+      console.log('[My List] Page mounted, triggering sync from Google Drive');
+      syncData();
+    }
+  }, [isAuthenticated, isInitialized, syncData]);
 
   const items = activeTab === 'watchlist' ? watchlist : favorites;
   const removeItem = activeTab === 'watchlist' ? removeFromWatchlist : removeFromFavorites;
