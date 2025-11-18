@@ -28,108 +28,64 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Load from localStorage or Google Drive on mount
+  // Only sync ONCE per page load
   useEffect(() => {
-    const loadData = async () => {
-      if (session.status === 'loading') return;
-
-      if (session.data?.accessToken) {
-        // User is authenticated - load from Google Drive
-        setIsSyncing(true);
-        try {
-          const response = await fetch('/api/watchlist/sync');
-          if (response.ok) {
-            const data = await response.json();
-            if (data.watchlist) setWatchlist(data.watchlist);
-            if (data.favorites) setFavorites(data.favorites);
-            
-            // Also update localStorage as cache
-            localStorage.setItem('watchlist', JSON.stringify(data.watchlist || []));
-            localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
-          } else {
-            // Fallback to localStorage if Drive fails
-            loadFromLocalStorage();
-          }
-        } catch (error) {
-          console.error('Failed to load from Google Drive:', error);
-          loadFromLocalStorage();
-        } finally {
-          setIsSyncing(false);
-        }
-      } else {
-        // Not authenticated - load from localStorage
-        loadFromLocalStorage();
-      }
-      
+    if (session.status !== 'authenticated') {
+      // Not authenticated, load from localStorage
+      loadFromLocalStorage();
       setIsInitialized(true);
+      return;
+    }
+
+    const syncOnce = async () => {
+      setIsSyncing(true);
+      try {
+        const res = await fetch('/api/watchlist/sync');
+        if (res.ok) {
+          const data = await res.json();
+          setWatchlist(data.watchlist || []);
+          setFavorites(data.favorites || []);
+          // Update localStorage as cache
+          localStorage.setItem('watchlist', JSON.stringify(data.watchlist || []));
+          localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
+        } else {
+          loadFromLocalStorage();
+        }
+      } catch (err) {
+        console.error('Failed to sync watchlist:', err);
+        loadFromLocalStorage();
+      } finally {
+        setIsSyncing(false);
+        setIsInitialized(true);
+      }
     };
 
-    loadData();
-  }, [session.data, session.status]);
+    syncOnce();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.status]); // Only triggers when session status changes
 
   const loadFromLocalStorage = () => {
-    const storedWatchlist = localStorage.getItem('watchlist');
-    const storedFavorites = localStorage.getItem('favorites');
-    
-    if (storedWatchlist) {
-      try {
-        setWatchlist(JSON.parse(storedWatchlist));
-      } catch (e) {
-        console.error('Failed to parse watchlist:', e);
-      }
-    }
-    
-    if (storedFavorites) {
-      try {
-        setFavorites(JSON.parse(storedFavorites));
-      } catch (e) {
-        console.error('Failed to parse favorites:', e);
-      }
+    try {
+      const storedWatchlist = localStorage.getItem('watchlist');
+      const storedFavorites = localStorage.getItem('favorites');
+      if (storedWatchlist) setWatchlist(JSON.parse(storedWatchlist));
+      if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
+    } catch (err) {
+      console.error('Failed to load watchlist from localStorage:', err);
     }
   };
 
-  // Listen to storage events for cross-tab synchronization
+  // Storage listener for cross-tab sync (optional)
   useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'watchlist' && e.newValue) {
-        try {
-          setWatchlist(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error('Failed to parse watchlist from storage event:', err);
-        }
-      } else if (e.key === 'favorites' && e.newValue) {
-        try {
-          setFavorites(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error('Failed to parse favorites from storage event:', err);
-        }
-      }
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'watchlist' && e.newValue) setWatchlist(JSON.parse(e.newValue));
+      if (e.key === 'favorites' && e.newValue) setFavorites(JSON.parse(e.newValue));
     };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
-  const syncToCloud = async (updatedWatchlist: SavedItem[], updatedFavorites: SavedItem[]) => {
-    if (!session.data?.accessToken) return;
-    
-    setIsSyncing(true);
-    try {
-      await fetch('/api/watchlist/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          watchlist: updatedWatchlist,
-          favorites: updatedFavorites,
-        }),
-      });
-    } catch (error) {
-      console.error('Failed to sync to Google Drive:', error);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
+  // Functions for add/remove
   const addToWatchlist = (item: Omit<SavedItem, 'addedAt'>) => {
     const newItem: SavedItem = { ...item, addedAt: Date.now() };
     const updated = [newItem, ...watchlist.filter(i => !(i.id === item.id && i.media_type === item.media_type))];
@@ -145,9 +101,8 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     syncToCloud(updated, favorites);
   };
 
-  const isInWatchlist = (id: number, media_type: 'movie' | 'tv') => {
-    return watchlist.some(i => i.id === id && i.media_type === media_type);
-  };
+  const isInWatchlist = (id: number, media_type: 'movie' | 'tv') =>
+    watchlist.some(i => i.id === id && i.media_type === media_type);
 
   const addToFavorites = (item: Omit<SavedItem, 'addedAt'>) => {
     const newItem: SavedItem = { ...item, addedAt: Date.now() };
@@ -164,43 +119,46 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
     syncToCloud(watchlist, updated);
   };
 
-  const isInFavorites = (id: number, media_type: 'movie' | 'tv') => {
-    return favorites.some(i => i.id === id && i.media_type === media_type);
-  };
+  const isInFavorites = (id: number, media_type: 'movie' | 'tv') =>
+    favorites.some(i => i.id === id && i.media_type === media_type);
 
-  // Manual sync function that can be called externally
-  const syncData = async () => {
-    if (!session.data?.accessToken) {
-      console.log('[Watchlist] Cannot sync - user not authenticated');
-      return;
-    }
-    
+  const syncToCloud = async (updatedWatchlist: SavedItem[], updatedFavorites: SavedItem[]) => {
+    if (!session.data?.accessToken) return;
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/watchlist/sync');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.watchlist) setWatchlist(data.watchlist);
-        if (data.favorites) setFavorites(data.favorites);
-        
-        // Also update localStorage as cache
-        localStorage.setItem('watchlist', JSON.stringify(data.watchlist || []));
-        localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
-        console.log('[Watchlist] Sync successful');
-      } else {
-        console.error('[Watchlist] Sync failed with status:', response.status);
-      }
-    } catch (error) {
-      console.error('[Watchlist] Failed to sync from Google Drive:', error);
+      await fetch('/api/watchlist/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ watchlist: updatedWatchlist, favorites: updatedFavorites }),
+      });
+    } catch (err) {
+      console.error('Failed to sync to cloud:', err);
     } finally {
       setIsSyncing(false);
     }
   };
 
-  // Don't render children until initialized to avoid hydration mismatches
-  if (!isInitialized) {
-    return null;
-  }
+  const syncData = async () => {
+    // Manual sync if needed
+    if (!session.data?.accessToken) return;
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/watchlist/sync');
+      if (res.ok) {
+        const data = await res.json();
+        setWatchlist(data.watchlist || []);
+        setFavorites(data.favorites || []);
+        localStorage.setItem('watchlist', JSON.stringify(data.watchlist || []));
+        localStorage.setItem('favorites', JSON.stringify(data.favorites || []));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  if (!isInitialized) return null;
 
   return (
     <WatchlistContext.Provider
@@ -226,8 +184,6 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
 export function useWatchlistContext() {
   const context = useContext(WatchlistContext);
-  if (context === undefined) {
-    throw new Error('useWatchlistContext must be used within a WatchlistProvider');
-  }
+  if (!context) throw new Error('useWatchlistContext must be used within a WatchlistProvider');
   return context;
 }
