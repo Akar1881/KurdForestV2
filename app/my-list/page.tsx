@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Bookmark, Heart, Trash2, AlertCircle } from 'lucide-react';
@@ -15,9 +15,13 @@ export default function MyListPage() {
   const { watchlist, removeFromWatchlist, favorites, removeFromFavorites, isAuthenticated, isSyncing, isInitialized, syncData } = useWatchlistContext();
 
   // Sync data from Google Drive whenever the page mounts if authenticated and initialized
+  // Sync only once per page load
+  const hasSyncedRef = useRef(false);
+
   useEffect(() => {
-    if (isAuthenticated && isInitialized) {
-      console.log('[My List] Page mounted, triggering sync from Google Drive');
+    if (isAuthenticated && isInitialized && !hasSyncedRef.current) {
+      console.log('[My List] Initial sync triggered once');
+      hasSyncedRef.current = true; // prevents future syncs
       syncData();
     }
   }, [isAuthenticated, isInitialized, syncData]);
