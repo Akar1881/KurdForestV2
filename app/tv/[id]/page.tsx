@@ -67,7 +67,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           alt: `${show.name} poster`,
         },
       ],
-      releaseDate: show.first_air_date,
     },
     
     twitter: {
