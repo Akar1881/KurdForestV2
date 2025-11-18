@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MoreVertical, X } from 'lucide-react';
-import { getImageUrl } from '@/lib/tmdb';
+import { resolvePoster } from '@/lib/tmdb';
 
 interface MediaProgress {
   id: number;
@@ -145,7 +145,7 @@ export default function ContinueWatching() {
         {progressItems.map((item) => {
           const percentage = getProgressPercentage(item);
           const isWatched = percentage >= 90;
-          const posterUrl = getImageUrl(item.poster_path, 'w300');
+          const posterUrl = resolvePoster(item.poster_path, 'w300');
           const itemId = String(item.id);
 
           return (

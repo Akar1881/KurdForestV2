@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { getImageUrl } from '@/lib/tmdb';
+import { resolvePoster } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 import { ReactNode } from 'react';
 
@@ -35,7 +35,7 @@ export default function HorizontalScroller({ title, items, type }: HorizontalScr
         {items.map((item) => {
           const itemTitle = item.title || item.name || 'Untitled';
           const href = type === 'movie' ? `/movie/${item.id}` : `/tv/${item.id}`;
-          const imageUrl = getImageUrl(item.poster_path, 'w300');
+          const imageUrl = resolvePoster(item.poster_path, 'w300');
 
           return (
             <Link
