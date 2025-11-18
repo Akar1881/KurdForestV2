@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Film, Tv } from 'lucide-react';
-import { getImageUrl } from '@/lib/tmdb';
+import { resolvePoster } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 import { ReactNode } from 'react';
 
@@ -35,7 +35,7 @@ export default function ExploreScroller({ title, items }: ExploreScrollerProps) 
           const itemTitle = item.title || item.name || 'Untitled';
           const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
           const href = mediaType === 'movie' ? `/movie/${item.id}` : `/tv/${item.id}`;
-          const imageUrl = getImageUrl(item.poster_path, 'w300');
+          const imageUrl = resolvePoster(item.poster_path, 'w300');
           const isMovie = mediaType === 'movie';
 
           return (
