@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Star, Play, Calendar, Tv, Share2, Copy, Check, X, Twitter, Facebook, MessageCircle, Link2, Bookmark, Heart } from 'lucide-react';
 import TrailerModal from '@/components/TrailerModal';
 import HorizontalScroller from '@/components/HorizontalScroller';
-import { getImageUrl } from '@/lib/tmdb';
+import { resolvePoster } from '@/lib/tmdb';
 import type { TVDetails, Cast } from '@/lib/types';
 import GAClientTracker from '@/components/GAClientTracker';
 import { useWatchlistContext } from '@/lib/WatchlistContext';
@@ -75,8 +75,8 @@ export default function TVDetailsClient({ show, id }: TVDetailsClientProps) {
     setShowShareModal(true);
   };
 
-  const backdropUrl = getImageUrl(show.backdrop_path, 'w1280');
-  const posterUrl = getImageUrl(show.poster_path, 'w500');
+  const backdropUrl = resolvePoster(show.backdrop_path, 'w1280');
+  const posterUrl = resolvePoster(show.poster_path, 'w500');
   const trailer = show.videos?.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
   const cast = show.credits?.cast?.slice(0, 10) || [];
   const similar = show.similar?.results || [];
@@ -275,7 +275,7 @@ export default function TVDetailsClient({ show, id }: TVDetailsClientProps) {
                   <div key={person.id} className="flex-shrink-0 w-24 sm:w-28 md:w-32">
                     <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-card-bg shadow-card mb-2 border border-card-border">
                       <Image
-                        src={getImageUrl(person.profile_path, 'w200')}
+                        src={resolvePoster(person.profile_path, 'w200')}
                         alt={person.name}
                         fill
                         className="object-cover"

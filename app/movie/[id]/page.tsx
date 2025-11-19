@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import Link from 'next/link';
-import { tmdbFetch, getImageUrl } from '@/lib/tmdb';
+import { tmdbFetch, resolvePoster } from '@/lib/tmdb';
 import type { MovieDetails } from '@/lib/types';
 import MovieDetailsClient from './MovieDetailsClient';
 
