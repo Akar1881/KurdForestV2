@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Play, Info, Film, Tv } from 'lucide-react';
-import { resolvePoster, GENRE_MAP } from '@/lib/tmdb';
+import { getImageUrl, GENRE_MAP } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 
 interface HeroProps {
@@ -37,7 +37,7 @@ export default function Hero({ items, type }: HeroProps) {
 
   const currentItem = items[currentIndex];
   const title = currentItem.title || currentItem.name || 'Untitled';
-  const backdropUrl = resolvePoster(currentItem.backdrop_path, 'w1280');
+  const backdropUrl = getImageUrl(currentItem.backdrop_path, 'w1280');
   const genres = currentItem.genre_ids?.slice(0, 3).map((id) => GENRE_MAP[id]).filter(Boolean) || [];
   const mediaType = currentItem.media_type || type;
   const isMovie = mediaType === 'movie';

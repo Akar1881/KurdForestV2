@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { resolvePoster } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/tmdb';
 import type { Episode } from '@/lib/types';
 
 interface EpisodeListProps {
@@ -41,7 +41,7 @@ export default function EpisodeList({ episodes, tvId, seasonNumber, filterUnrele
   return (
     <div className="space-y-4">
       {displayEpisodes.map((episode) => {
-        const imageUrl = resolvePoster(episode.still_path, 'w300');
+        const imageUrl = getImageUrl(episode.still_path, 'w300');
         const truncatedTitle = episode.name.length > 40
           ? `${episode.name.substring(0, 40)}...`
           : episode.name;

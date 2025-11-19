@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
-import { resolvePoster } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 
 interface MediaCardProps {
@@ -12,7 +12,7 @@ interface MediaCardProps {
 export default function MediaCard({ item, type }: MediaCardProps) {
   const title = item.title || item.name || 'Untitled';
   const href = type === 'movie' ? `/movie/${item.id}` : `/tv/${item.id}`;
-  const imageUrl = resolvePoster(item.poster_path, 'w300');
+  const imageUrl = getImageUrl(item.poster_path, 'w300');
 
   return (
     <Link

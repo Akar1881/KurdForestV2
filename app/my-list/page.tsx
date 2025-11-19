@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Bookmark, Heart, Trash2, AlertCircle } from 'lucide-react';
 import { useWatchlistContext } from '@/lib/WatchlistContext';
-import { resolvePoster } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/tmdb';
 import type { SavedItem } from '@/lib/types';
 import GAClientTracker from '@/components/GAClientTracker';
 import GoogleSignIn from '@/components/GoogleSignIn';
@@ -172,8 +172,8 @@ function ItemCard({
   onRemove: (id: number, media_type: 'movie' | 'tv') => void;
   activeTab: 'watchlist' | 'favorites';
 }) {
-  const posterUrl = resolvePoster(item.poster_path, 'w300');
-  const backdropUrl = resolvePoster(item.backdrop_path, 'w780');
+  const posterUrl = getImageUrl(item.poster_path, 'w300');
+  const backdropUrl = getImageUrl(item.backdrop_path, 'w780');
   const title = item.title || item.name || 'Unknown';
   const year = item.release_date
     ? new Date(item.release_date).getFullYear()

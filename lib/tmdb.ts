@@ -2,80 +2,69 @@ import type { FilterOptions } from './types';
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+
 export const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p';
 
-if (!TMDB_API_KEY) {
-  throw new Error("[TMDB] Missing TMDB_API_KEY in environment");
-}
-
-/* ---------------------------------------------
-   TMDB FETCH WITH LANGUAGE + IMAGE FALLBACK
----------------------------------------------- */
-
 export async function tmdbFetch(endpoint: string) {
+  // Check if endpoint already has query params
   const hasExistingParams = endpoint.includes('?');
-
-  const url = `${TMDB_BASE_URL}${endpoint}${
-    hasExistingParams ? '&' : '?'
-  }api_key=${TMDB_API_KEY}&language=en-US&include_image_language=en,en-US,null`;
-
-  console.log('[TMDB] Fetching:', url);
-
+  const url = `${TMDB_BASE_URL}${endpoint}${hasExistingParams ? '&' : '?'}api_key=${TMDB_API_KEY}`;
+  
+  console.log('[TMDB] Fetching:', endpoint);
+  
   const res = await fetch(url, {
-    next: { revalidate: 600 },
+    next: { revalidate: 600 }, // Reduced from 3600 to 600 seconds (10 minutes) to prevent stale data
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    console.error('[TMDB] TMDB ERROR:', {
+    const errorText = await res.text().catch(() => 'Unable to read error response');
+    console.error('[TMDB] API Error:', {
       status: res.status,
-      text,
-      endpoint
+      statusText: res.statusText,
+      endpoint,
+      error: errorText
     });
-    throw new Error(`TMDB API Error: ${res.status}`);
+    throw new Error(`TMDB API Error: ${res.status} - ${res.statusText}`);
   }
 
   const data = await res.json();
+  
+  // Log warnings for missing data when using append_to_response
+  if (endpoint.includes('append_to_response')) {
+    const missing = [];
+    if (endpoint.includes('credits') && !data.credits) missing.push('credits');
+    if (endpoint.includes('videos') && !data.videos) missing.push('videos');
+    if (endpoint.includes('similar') && !data.similar) missing.push('similar');
+    
+    if (missing.length > 0) {
+      console.warn('[TMDB] Missing appended data:', {
+        endpoint,
+        id: data.id,
+        title: data.title || data.name,
+        missing
+      });
+    }
+    
+    // Log if data exists but is empty
+    if (data.credits && (!data.credits.cast || data.credits.cast.length === 0)) {
+      console.warn('[TMDB] Empty cast data:', { endpoint, id: data.id, title: data.title || data.name });
+    }
+    if (data.similar && (!data.similar.results || data.similar.results.length === 0)) {
+      console.warn('[TMDB] Empty similar content:', { endpoint, id: data.id, title: data.title || data.name });
+    }
+  }
 
   return data;
 }
 
-/* ---------------------------------------------
-   IMAGE URL BUILDER WITH SMART FALLBACKS
----------------------------------------------- */
-
-export function getImageUrl(
-  path: string | null,
-  size: 'w200' | 'w300' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500'
-) {
+export function getImageUrl(path: string | null, size: 'w200' | 'w300' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500') {
   if (!path) return '/placeholder.png';
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 }
 
-/**
- * Accepts TMDB item: movie, TV, or similar result
- * Returns best possible image:
- * 1. poster_path
- * 2. fallback to backdrop_path
- * 3. fallback to placeholder
- */
-export function resolvePoster(item: any, size: string = 'w500') {
-  const path =
-    item.poster_path ||
-    item.backdrop_path ||
-    null;
-
-  return getImageUrl(path, size as any);
-}
-
-/* ---------------------------------------------
-   DISCOVER FILTER PARAM BUILDER
----------------------------------------------- */
-
 export function buildDiscoverParams(filters: FilterOptions, type: 'movie' | 'tv'): string {
   const params = new URLSearchParams();
-
-  // YEAR RANGE
+  
   if (filters.yearFrom && filters.yearTo) {
     if (type === 'movie') {
       params.append('primary_release_date.gte', `${filters.yearFrom}-01-01`);
@@ -85,43 +74,35 @@ export function buildDiscoverParams(filters: FilterOptions, type: 'movie' | 'tv'
       params.append('first_air_date.lte', `${filters.yearTo}-12-31`);
     }
   }
-
-  // GENRES
-  if (filters.genres?.length) {
+  
+  if (filters.genres && filters.genres.length > 0) {
     params.append('with_genres', filters.genres.join(','));
   }
-
-  // RATING
+  
   if (filters.ratingFrom !== undefined) {
-    params.append('vote_average.gte', String(filters.ratingFrom));
+    params.append('vote_average.gte', filters.ratingFrom.toString());
   }
-
+  
   if (filters.ratingTo !== undefined) {
-    params.append('vote_average.lte', String(filters.ratingTo));
+    params.append('vote_average.lte', filters.ratingTo.toString());
   }
-
-  // AVOID BAD RESULTS
+  
   params.append('vote_count.gte', '100');
-
-  // SORTING
-  params.append('sort_by', filters.sortBy ?? 'popularity.desc');
-
+  
+  if (filters.sortBy) {
+    params.append('sort_by', filters.sortBy);
+  } else {
+    params.append('sort_by', 'popularity.desc');
+  }
+  
   return params.toString();
 }
-
-/* ---------------------------------------------
-   UTILITIES
----------------------------------------------- */
 
 export function formatRuntime(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return `${hours}h ${mins}m`;
 }
-
-/* ---------------------------------------------
-   GENRE MAP
----------------------------------------------- */
 
 export const GENRE_MAP: Record<number, string> = {
   28: 'Action',

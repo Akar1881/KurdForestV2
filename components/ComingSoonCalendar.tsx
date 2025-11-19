@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
-import { resolvePoster } from '@/lib/tmdb';
+import { getImageUrl } from '@/lib/tmdb';
 import type { TMDBMovie } from '@/lib/types';
 
 interface ComingSoonCalendarProps {
@@ -170,7 +170,7 @@ export default function ComingSoonCalendar({ upcomingMovies }: ComingSoonCalenda
                   const title = movie.title || movie.name || 'Untitled';
                   const type = movie.media_type || 'movie';
                   const href = type === 'movie' ? `/movie/${movie.id}` : `/tv/${movie.id}`;
-                  const imageUrl = resolvePoster(movie.poster_path, 'w300');
+                  const imageUrl = getImageUrl(movie.poster_path, 'w300');
 
                   return (
                     <Link
