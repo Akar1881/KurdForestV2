@@ -58,7 +58,7 @@ export async function tmdbFetch(endpoint: string) {
 }
 
 export function getImageUrl(path: string | null, size: 'w200' | 'w300' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500') {
-  if (!path) return '/placeholder.png';
+  if (!path) return '/placeholder.svg';
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 }
 
